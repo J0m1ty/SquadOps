@@ -1,18 +1,15 @@
-import { Application } from '@pixi/app';
+import { app } from './core/app';
+import { engine } from './core/engine';
+import { Game } from './main/game';
 
-const app = new Application<HTMLCanvasElement>({
-    backgroundColor: 0x1099bb,
-    resolution: 1,
-    antialias: true
-});
-
-document.addEventListener('DOMContentLoaded', () => {
+(() => {
     const entry = document.getElementById('entry');
 
     if (!entry) return;
 
-    console.log("test");
-
     app.resizeTo = entry.parentElement!;
     entry.appendChild(app.view);
-});
+
+    const game = new Game(app, engine);
+    game.start();
+})();
