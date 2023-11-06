@@ -4,14 +4,20 @@
   "description": "",
   "main": "dist/entry.js",
   "scripts": {
-    "build": "tsc --watch"
+    "build": "webpack -w"
   },
   "author": "Jomity",
   "license": "ISC",
   "dependencies": {
+    "@pixi/app": "^7.3.2"
+  },
+  "devDependencies": {
+    "@types/css-font-loading-module": "^0.0.10",
     "@types/node": "^20.8.10",
-    "nodemon": "^3.0.1",
     "ts-loader": "^9.5.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   }
 }
