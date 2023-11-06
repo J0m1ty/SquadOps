@@ -1,0 +1,17 @@
+{
+  "name": "squads",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/entry.js",
+  "scripts": {
+    "build": "tsc --watch"
+  },
+  "author": "Jomity",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.8.10",
+    "nodemon": "^3.0.1",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.2.2"
+  }
+}
