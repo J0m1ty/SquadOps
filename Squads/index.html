@@ -3,9 +3,21 @@
     <head>
         <meta charset="utf-8">
         <title>Test Webpage</title>
-        <script src="./dist/bundle.js"></script>
+        <link rel="stylesheet" type="text/css" href="./dist/styles.css">
     </head>
     <body>
+        <div class="overlay" id="load">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+        </div>
         <div id="entry"></div>
+        <script defer src="./dist/bundle.js" id="script"></script>
+        <script>
+            document.getElementById("script").addEventListener("load", () => {
+                document.getElementById("load").style.display = "none";
+            });
+        </script>
     </body>
 </html>
