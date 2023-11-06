@@ -4,8 +4,14 @@
         <meta charset="utf-8">
         <title>Test Webpage</title>
         <link rel="stylesheet" type="text/css" href="./styles.css">
+        <script defer src="./bundle.js" id="script"></script>
     </head>
     <body>
+        <script async>
+            document.getElementById("script").addEventListener("load", function() {
+                document.getElementById("load").style.display = "none";
+            });
+        </script>
         <div class="overlay" id="load">
             <div class="loading-content">
                 <div class="spinner"></div>
@@ -13,11 +19,5 @@
             </div>
         </div>
         <div id="entry"></div>
-        <script defer src="./bundle.js" id="script"></script>
-        <script>
-            document.getElementById("script").addEventListener("load", function() {
-                document.getElementById("load").style.display = "none";
-            });
-        </script>
     </body>
 </html>

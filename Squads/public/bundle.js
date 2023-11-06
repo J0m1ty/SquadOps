@@ -2282,6 +2282,17 @@ eval("\n\nvar GetIntrinsic = __webpack_require__(/*! get-intrinsic */ \"./node_m
 
 /***/ }),
 
+/***/ "./src/basic/gameObject.ts":
+/*!*********************************!*\
+  !*** ./src/basic/gameObject.ts ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.GameObject = void 0;\nvar display_1 = __webpack_require__(/*! @pixi/display */ \"./node_modules/@pixi/display/lib/index.js\");\nvar GameObject = /** @class */ (function () {\n    function GameObject(game, body) {\n        this.container = new display_1.Container();\n        this.game = game;\n        this.body = body;\n    }\n    GameObject.prototype.update = function (delta) {\n        this.container.position.set(this.body.position.x, this.body.position.y);\n        this.container.rotation = this.body.angle;\n    };\n    return GameObject;\n}());\nexports.GameObject = GameObject;\n\n\n//# sourceURL=webpack://squads/./src/basic/gameObject.ts?");
+
+/***/ }),
+
 /***/ "./src/core/app.ts":
 /*!*************************!*\
   !*** ./src/core/app.ts ***!
@@ -2319,10 +2330,10 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nvar 
 /*!**************************!*\
   !*** ./src/main/game.ts ***!
   \**************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.Game = void 0;\nvar Game = /** @class */ (function () {\n    function Game(app, engine) {\n        this.app = app;\n        this.engine = engine;\n    }\n    Game.prototype.start = function () {\n        console.log('Game started!');\n    };\n    return Game;\n}());\nexports.Game = Game;\n\n\n//# sourceURL=webpack://squads/./src/main/game.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.Game = void 0;\nvar display_1 = __webpack_require__(/*! @pixi/display */ \"./node_modules/@pixi/display/lib/index.js\");\nvar matter_js_1 = __webpack_require__(/*! matter-js */ \"./node_modules/matter-js/build/matter.js\");\nvar gameObject_1 = __webpack_require__(/*! ../basic/gameObject */ \"./src/basic/gameObject.ts\");\nvar Game = /** @class */ (function () {\n    function Game(app, engine) {\n        var _this = this;\n        this.updates = {\n            resize: false\n        };\n        this.layers = {\n            background: new display_1.Container(),\n            main: new display_1.Container(),\n            ui: new display_1.Container()\n        };\n        this.app = app;\n        this.engine = engine;\n        this.app.stage.addChild(this.layers.background);\n        this.app.stage.addChild(this.layers.main);\n        this.app.stage.addChild(this.layers.ui);\n        this.app.ticker.add(this.update.bind(this));\n        window.addEventListener('resize', function () {\n            _this.updates.resize = true;\n        });\n    }\n    Game.prototype.start = function () {\n        console.log('EVENT: START');\n        this.gameObject = new gameObject_1.GameObject(this, matter_js_1.Bodies.rectangle(0, 0, 100, 100));\n        matter_js_1.Composite.add(this.engine.world, this.gameObject.body);\n        this.layers.main.addChild(this.gameObject.container);\n    };\n    Game.prototype.update = function (delta) {\n        var _a;\n        if (this.updates.resize) {\n            this.resize();\n            this.updates.resize = false;\n        }\n        (_a = this.gameObject) === null || _a === void 0 ? void 0 : _a.update(delta);\n        matter_js_1.Engine.update(this.engine, delta);\n        // console.log(this.gameObject?.body.position)\n    };\n    Game.prototype.resize = function () {\n        console.log('EVENT: RESIZE');\n    };\n    return Game;\n}());\nexports.Game = Game;\n\n\n//# sourceURL=webpack://squads/./src/main/game.ts?");
 
 /***/ }),
 
