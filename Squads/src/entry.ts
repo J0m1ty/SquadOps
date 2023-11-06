@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!entry) return;
 
+    console.log("test");
+
     app.resizeTo = entry.parentElement!;
     entry.appendChild(app.view);
 });
