@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/entry.js",
   "scripts": {
-    "build": "webpack -w"
+    "build": "webpack",
+    "dev": "webpack -w --mode development"
   },
   "author": "Jomity",
   "license": "ISC",
