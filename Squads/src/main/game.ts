@@ -3,7 +3,6 @@ import { Container } from '@pixi/display';
 import { Graphics } from '@pixi/graphics';
 import { Bodies, Body, Composite, Engine, Runner, Vector } from 'matter-js';
 import { GameObject } from '../basic/gameObject';
-import Matter = require('matter-js');
 
 export class Game {
     app: Application;
