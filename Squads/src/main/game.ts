@@ -1,5 +1,4 @@
-import { Application } from '@pixi/app';
-import { Container } from '@pixi/display';
+import { Application, Container } from 'pixi.js';
 import { Engine } from 'matter-js';
 
 export class Game {
@@ -16,6 +15,14 @@ export class Game {
         main: new Container(),
         ui: new Container()
     };
+
+    get width() {
+        return this.app.view.width;
+    }
+
+    get height() {
+        return this.app.view.height;
+    }
     
     constructor(app: Application, engine: Engine) {
         this.app = app;
