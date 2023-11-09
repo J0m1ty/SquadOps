@@ -20,5 +20,7 @@ export class InputManager {
 
         this.mouse = new Mouse();
         this.keyboard = new Keyboard();
+
+        this.game.app.stage.hitArea = this.game.app.screen;
     }
 }
