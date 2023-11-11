@@ -1,5 +1,6 @@
 class Key {
     value: string;
+    state = false;
     isDown = false;
     isUp = true;
     _press: (() => void)[] = [];
@@ -47,6 +48,7 @@ export class Keyboard {
             e.preventDefault();
 
             if (key.isUp) {
+                key.state = !key.state;
                 key._press.forEach(f => f());
                 this.nDown++;
             }

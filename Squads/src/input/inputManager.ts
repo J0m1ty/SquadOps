@@ -1,11 +1,11 @@
-import { Body, Vector } from "matter-js";
+import { Vector } from "matter-js";
 import { Game } from "../main/game";
-import { clamp } from "../util/math";
 import { Keyboard } from "./keyboard";
 import { Mouse } from "./mouse";
-import * as PIXI from 'pixi.js';
+import { Component } from "../basic/component";
+import { clamp } from "../util/math";
 
-export class InputManager {
+export class InputManager implements Component {
     game: Game;
 
     mouse: Mouse;
@@ -36,11 +36,19 @@ export class InputManager {
             this.click = true;
         });
 
-        // this.mouse.scroll((deltaY) => {
-        //     this.scrollCount += deltaY;
-        //     this.scrollCount = clamp(this.scrollCount, -2, 4);
-        //     this.game.camera.scale = Math.pow(this.scrollCount < 0 ? this.scrollAmount : (1 / this.scrollAmount), Math.abs(this.scrollCount));
-        // });
+        this.mouse.scroll((deltaY) => {
+            this.scrollCount += deltaY;
+            this.scrollCount = clamp(this.scrollCount, -2, 4);
+            // this.game.camera.scale = Math.pow(this.scrollCount < 0 ? this.scrollAmount : (1 / this.scrollAmount), Math.abs(this.scrollCount));
+        });
+
+        this.keyboard.key('m').press(() => {
+            this.game.worldMap.visibility(!this.game.worldMap.visible);
+        }).release(() => {
+            if (this.game.worldMap.interactionMode != "toggle") {
+                this.game.worldMap.visibility(false);
+            }
+        });
     }
 
     update(delta: number) {
@@ -51,7 +59,8 @@ export class InputManager {
         if (this.keyboard.key('ArrowRight').isDown || this.keyboard.key('d').isDown) raw.x += 1;
         const move = Vector.mult(Vector.normalise(raw), 1);
 
-        Body.setVelocity(this.game.testPlayer.body, move);
+        this.game.camera.position.x += move.x;
+        this.game.camera.position.y += move.y;
     }
 
     reset() {
