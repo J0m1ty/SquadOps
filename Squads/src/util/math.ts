@@ -17,7 +17,7 @@ export const angleBetween = (a: number, b: number) => {
 export const angleTo = (current: number, target: number) => {
     const sin = Math.sin(target - current);
 
-    return angleBetween(current, target) < 0.02 ? 0 : Math.abs(sin) / sin;
+    return Math.abs(sin) / sin;
 }
 
 export const smoothstep = (min: number, max: number, t: number) => {

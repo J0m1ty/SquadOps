@@ -1,7 +1,7 @@
 import { Bodies } from "matter-js";
-import { GameObject } from "../basic/gameObject";
-import { Game } from "./game";
-import { Hand } from "../basic/types";
+import { GameObject } from "./gameObject";
+import { Game } from "../main/game";
+import { Hand } from "./types";
 import { Container, Graphics, Point } from "pixi.js";
 import { angleBetween, angleTo, map, smoothstep } from "../util/math";
 
@@ -34,7 +34,10 @@ export class Agent extends GameObject {
             friction: 0,
             frictionAir: 0,
             frictionStatic: 0
-        }));
+        }), {
+            layer: "player",
+            cullable: false
+        });
 
         this.trackBodyRotation = false;
         
@@ -83,15 +86,15 @@ export class Agent extends GameObject {
     update(delta: number) {
         for (let i = 0; i < this.rotationSpeed; i++) {
             const diff = angleBetween(this._rotation, this.rotation);
-            const modify = angleTo(this._rotation, this.rotation) * (Math.PI / 180) * delta;
-            
-            if (Math.abs(diff) < Math.abs(modify) * 2) {
+
+            if (Math.abs(diff) < 0.01) {
                 this._rotation = this.rotation;
                 break;
             }
-            else {
-                this._rotation = (modify + this._rotation) % (2 * Math.PI);
-            }
+
+            const modify = angleTo(this._rotation, this.rotation) * (Math.PI / 180) * delta;
+            
+            this._rotation = (modify + this._rotation) % (2 * Math.PI);
         }
 
         this.container.rotation = this._rotation;

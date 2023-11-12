@@ -4,7 +4,6 @@ import { Keyboard } from "./keyboard";
 import { Mouse } from "./mouse";
 import { Component } from "../basic/component";
 import { clamp } from "../util/math";
-import { Point } from "pixi.js";
 
 export class InputManager implements Component {
     game: Game;

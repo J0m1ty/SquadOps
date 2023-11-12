@@ -66,10 +66,18 @@ export class Camera implements StaticComponent {
         }
     }
 
-    update(delta: number) {
-        this._pos.x = lerp(this._pos.x, this.targetPos.x, 1 - Math.pow(this.moveEase, delta));
-        this._pos.y = lerp(this._pos.y, this.targetPos.y, 1 - Math.pow(this.moveEase, delta));
-        this._zoom = Math.exp(lerp(Math.log(this._zoom), Math.log(this.targetZoom), 1 - Math.pow(this.scaleEase, delta)));
+    cull = (point: { x: number, y: number }, r: number) => {
+        const { x, y } = this.out(point);
+
+        const { width, height } = this.game;
+        
+        return x < -r || x > width + r || y < -r || y > height + r;
+    }
+
+    update(delta: number, smooth: { position: boolean, zoom: boolean } = { position: true, zoom: true }) {
+        this._pos.x = smooth.position ? lerp(this._pos.x, this.targetPos.x, 1 - Math.pow(this.moveEase, delta)) : this.targetPos.x;
+        this._pos.y = smooth.position ? lerp(this._pos.y, this.targetPos.y, 1 - Math.pow(this.moveEase, delta)) : this.targetPos.y;
+        this._zoom = smooth.zoom ? Math.exp(lerp(Math.log(this._zoom), Math.log(this.targetZoom), 1 - Math.pow(this.scaleEase, delta))) : this.targetZoom;
     }
 
     resize() {

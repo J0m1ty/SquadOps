@@ -1,5 +1,5 @@
 import { Component } from "../basic/component";
-import { Agent } from "./agent";
+import { Agent } from "../basic/agent";
 import { Game } from "./game";
 
 export class PlayerManager implements Component {

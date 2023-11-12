@@ -8,12 +8,14 @@ import { Layer } from '../basic/types';
 import { Grid } from './grid';
 import { PlayerManager } from './playerManager';
 import { TrackingCamera } from './trackingCamera';
+import { Debug } from './debug';
 
 export class Game {
     app: Application;
     engine: Engine;
     
     // SComponents
+    debug: Debug;
     input: InputManager;
     playerManager: PlayerManager;
     camera: TrackingCamera<GameObject>;
@@ -22,8 +24,10 @@ export class Game {
     
     layers: Record<Layer, Container> = {
         background: new Container(),
-        main: new Container(),
-        ui: new Container()
+        surface: new Container(),
+        player: new Container(),
+        ui: new Container(),
+        debug: new Container()
     };
 
     lastWidth: number = -1;
@@ -41,6 +45,7 @@ export class Game {
         this.app = app;
         this.engine = engine;
         
+        this.debug = new Debug(this);
         this.input = new InputManager(this);
         this.playerManager = new PlayerManager(this);
         this.camera = new TrackingCamera(this, this.playerManager.agent);
@@ -48,8 +53,10 @@ export class Game {
         this.grid = new Grid(this);
         
         this.app.stage.addChild(this.layers.background);
-        this.app.stage.addChild(this.layers.main);
+        this.app.stage.addChild(this.layers.surface);
+        this.app.stage.addChild(this.layers.player);
         this.app.stage.addChild(this.layers.ui);
+        this.app.stage.addChild(this.layers.debug);
 
         this.app.ticker.add(this.update.bind(this));
 
@@ -75,9 +82,16 @@ export class Game {
             
             const color = new Color(Math.random() * 0xffffff);
 
-            const obj = new GameObject(this, body);
+            const obj = new GameObject(this, body, {
+                layer: "surface",
+                cullable: true
+            });
 
-            obj.blipColor = color;
+            this.worldMap.register({
+                x: x,
+                y: y,
+                graphic: new Graphics().beginFill(color).drawCircle(0, 0, r).endFill()
+            });
 
             this.testGameObjs.push(obj);
 
@@ -95,6 +109,11 @@ export class Game {
             this.resize();
         }
 
+        this.debug.set("FPS", `${Math.round(this.app.ticker.FPS)}`);
+        this.debug.set("POS", `${Math.round(this.playerManager.agent.position.x)}, ${Math.round(this.playerManager.agent.position.y)}`);
+        this.debug.set("ROT", `${Math.round(this.playerManager.agent.rotation * 180 / Math.PI)}`);
+
+        this.debug.update(delta);
         this.input.update(delta);
         this.camera.update(delta);
         this.grid.update(delta);
@@ -118,7 +137,7 @@ export class Game {
     }
 
     reset() {
-        this.worldMap.reset();
         this.input.reset();
+        this.debug.reset();
     }
 }

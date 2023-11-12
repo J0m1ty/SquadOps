@@ -20,6 +20,6 @@ export class TrackingCamera<T extends GameObject | Point> extends Camera {
             y: pos.y
         };
 
-        super.update(delta);
+        super.update(delta, { position: false, zoom: true });
     }
 }
