@@ -30,7 +30,7 @@ export class Camera implements StaticComponent {
         return {
             x: (point.x - this.position.x) * (this.scale * this._scale) + this.game.width / 2,
             y: (point.y - this.position.y) * (this.scale * this._scale) + this.game.height / 2,
-            scale: this.scale
+            scale: this.scale * this._scale
         }
     }
 
