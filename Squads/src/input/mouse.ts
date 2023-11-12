@@ -3,6 +3,7 @@ export class Mouse {
 
     constructor() {
         const scrollListener = (e: WheelEvent) => {
+            e.preventDefault();
             this._scroll(e.deltaY == 0 ? 0 : (e.deltaY > 0 ? 1 : -1));
         };
         
