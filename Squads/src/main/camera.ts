@@ -3,14 +3,38 @@ import { StaticComponent } from "../basic/component";
 import { Game } from "./game";
 import "@pixi/math-extras";
 import { Point } from "pixi.js";
+import { lerp } from "../util/math";
 
 export class Camera implements StaticComponent {
     game: Game;
 
-    position: { x: number, y: number } = { x: 0, y: 0 };
+    protected targetPos: { x: number, y: number } = { x: 0, y: 0 };
+    protected targetZoom: number = 1
+
+    protected _pos = this.targetPos;
+    protected _zoom = this.targetZoom;
+
+    moveEase: number = 0.5;
+    scaleEase: number = 0.75;
+
     vision: number = 1000;
-    scale: number = 1;
-    private _scale: number = 1;
+    aspectControl: number = 1;
+
+    get position() {
+        return this._pos;
+    }
+
+    set position(value: { x: number, y: number }) {
+        this.targetPos = value;
+    }
+
+    get scale() {
+        return this._zoom * this.aspectControl;
+    }
+
+    set zoom(value: number) {
+        this.targetZoom = value;
+    }
     
     constructor(game: Game) {
         this.game = game;
@@ -21,16 +45,15 @@ export class Camera implements StaticComponent {
     calculate = () => {
         const max = Math.max(this.game.width, this.game.height);
 
-        this._scale = max / this.vision;
+        this.aspectControl = max / this.vision;
     }
 
     in = (a: { x: number, y: number} | number, b?: number) => {
         const point = typeof a === "number" ? { x: a, y: b ?? a } : a;
 
         return {
-            x: (point.x - this.position.x) * (this.scale * this._scale) + this.game.width / 2,
-            y: (point.y - this.position.y) * (this.scale * this._scale) + this.game.height / 2,
-            scale: this.scale * this._scale
+            x: (point.x - this.position.x) * this.scale + this.game.width / 2,
+            y: (point.y - this.position.y) * this.scale + this.game.height / 2
         }
     }
 
@@ -38,9 +61,15 @@ export class Camera implements StaticComponent {
         const point = typeof a === "number" ? { x: a, y: b ?? a } : a;
 
         return {
-            x: (point.x - this.game.width / 2) / (this.scale * this._scale) + this.position.x,
-            y: (point.y - this.game.height / 2) / (this.scale * this._scale) + this.position.y
+            x: (point.x - this.game.width / 2) / this.scale + this.position.x,
+            y: (point.y - this.game.height / 2) / this.scale + this.position.y
         }
+    }
+
+    update(delta: number) {
+        this._pos.x = lerp(this._pos.x, this.targetPos.x, 1 - Math.pow(this.moveEase, delta));
+        this._pos.y = lerp(this._pos.y, this.targetPos.y, 1 - Math.pow(this.moveEase, delta));
+        this._zoom = Math.exp(lerp(Math.log(this._zoom), Math.log(this.targetZoom), 1 - Math.pow(this.scaleEase, delta)));
     }
 
     resize() {

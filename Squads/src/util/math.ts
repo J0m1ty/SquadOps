@@ -5,3 +5,22 @@ export const map = (value: number, min1: number, max1: number, min2: number, max
 export const clamp = (value: number, min: number, max: number) => {
     return Math.min(Math.max(value, min), max);
 }
+
+export const lerp = (a: number, b: number, t: number) => {
+    return a + (b - a) * t;
+}
+
+export const angleBetween = (a: number, b: number) => {
+    return Math.min((2 * Math.PI) - Math.abs(a - b), Math.abs(a - b));
+}
+
+export const angleTo = (current: number, target: number) => {
+    const sin = Math.sin(target - current);
+
+    return angleBetween(current, target) < 0.02 ? 0 : Math.abs(sin) / sin;
+}
+
+export const smoothstep = (min: number, max: number, t: number) => {
+    const x =  Math.max(0, Math.min(1, (t - min)/(max-min)));;
+    return x * x * (3 - 2 * x);
+}

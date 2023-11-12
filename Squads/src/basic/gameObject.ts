@@ -12,7 +12,12 @@ export class GameObject implements Component {
 
     container: Container = new Container();
 
+    trackBodyRotation: boolean = true;
     blipColor: Color = new Color(0x000000);
+
+    get position() {
+        return this.body.position;
+    }
 
     constructor(game: Game, body: Body, layer: Layer = "main") {
         this.game = game;
@@ -25,14 +30,16 @@ export class GameObject implements Component {
     }
 
     update(delta: number) {
-        const { x, y, scale } = this.game.camera.in(new Point( this.body.position.x, this.body.position.y ));
+        const { x, y } = this.game.camera.in(new Point( this.position.x, this.position.y ));
         this.container.position.set(x, y);
 
-        this.container.scale.set(scale);
+        this.container.scale.set(this.game.camera.scale);
 
-        this.container.rotation = this.body.angle;
+        if (this.trackBodyRotation) {
+            this.container.rotation = this.body.angle;
+        }
 
-        this.game.worldMap.register(this.body.position.x, this.body.position.y, this.blipColor);
+        this.game.worldMap.register(this.position.x, this.position.y, this.blipColor);
     }
 }
 

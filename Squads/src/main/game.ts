@@ -4,18 +4,19 @@ import { Camera } from './camera';
 import { InputManager } from '../input/inputManager';
 import { GameObject } from '../basic/gameObject';
 import { WorldMap } from './worldMap';
-import { Layer, Update,  } from '../basic/types';
+import { Layer } from '../basic/types';
 import { Grid } from './grid';
+import { PlayerManager } from './playerManager';
+import { TrackingCamera } from './trackingCamera';
 
 export class Game {
     app: Application;
     engine: Engine;
     
-    // Static Components
+    // SComponents
     input: InputManager;
-    camera: Camera;
-
-    // Dynamic Components
+    playerManager: PlayerManager;
+    camera: TrackingCamera<GameObject>;
     worldMap: WorldMap;
     grid: Grid;
     
@@ -41,7 +42,8 @@ export class Game {
         this.engine = engine;
         
         this.input = new InputManager(this);
-        this.camera = new Camera(this);
+        this.playerManager = new PlayerManager(this);
+        this.camera = new TrackingCamera(this, this.playerManager.agent);
         this.worldMap = new WorldMap(this);
         this.grid = new Grid(this);
         
@@ -62,9 +64,14 @@ export class Game {
         for (let i = 0; i < 1000; i++) {
             const x = Math.random() * 10000 - 5000;
             const y = Math.random() * 10000 - 5000;
-            const r = Math.random() * 15 + 5
+            const r = Math.random() * 100 + 5
             
-            const body = Bodies.circle(x, y, r);
+            const body = Bodies.circle(x, y, r, {
+                friction: 0,
+                frictionAir: 0,
+                frictionStatic: 0,
+                isStatic: true
+            });
             
             const color = new Color(Math.random() * 0xffffff);
 
@@ -89,7 +96,9 @@ export class Game {
         }
 
         this.input.update(delta);
+        this.camera.update(delta);
         this.grid.update(delta);
+        this.playerManager.update(delta);
 
         for (let obj of this.testGameObjs) {
             obj.update(delta);
