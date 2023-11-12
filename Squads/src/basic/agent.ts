@@ -35,11 +35,10 @@ export class Agent extends GameObject {
             frictionAir: 0,
             frictionStatic: 0
         }), {
-            layer: "player",
-            cullable: false
+            layer: "player"
         });
 
-        this.trackBodyRotation = false;
+        this.info.trackBodyRotation = false;
         
         this.center.beginFill(0xd5a98a);
         this.center.drawCircle(0, 0, this.size);

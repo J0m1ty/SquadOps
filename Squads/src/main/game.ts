@@ -1,25 +1,26 @@
-import { Application, Color, Container, Graphics } from 'pixi.js';
-import { Bodies, Body, Engine } from 'matter-js';
-import { Camera } from './camera';
+import { Application, BitmapFont, Color, Container, Graphics, Rectangle } from 'pixi.js';
+import { Bodies, Engine } from 'matter-js';
 import { InputManager } from '../input/inputManager';
 import { GameObject } from '../basic/gameObject';
-import { WorldMap } from './worldMap';
+import { Minimap } from './minimap';
 import { Layer } from '../basic/types';
 import { Grid } from './grid';
 import { PlayerManager } from './playerManager';
 import { TrackingCamera } from './trackingCamera';
 import { Debug } from './debug';
+import { Fonts } from '../basic/fonts';
 
 export class Game {
     app: Application;
     engine: Engine;
     
     // SComponents
+    fonts: Fonts;
     debug: Debug;
     input: InputManager;
     playerManager: PlayerManager;
     camera: TrackingCamera<GameObject>;
-    worldMap: WorldMap;
+    minimap: Minimap;
     grid: Grid;
     
     layers: Record<Layer, Container> = {
@@ -45,11 +46,12 @@ export class Game {
         this.app = app;
         this.engine = engine;
         
+        this.fonts = new Fonts(this);
         this.debug = new Debug(this);
         this.input = new InputManager(this);
         this.playerManager = new PlayerManager(this);
         this.camera = new TrackingCamera(this, this.playerManager.agent);
-        this.worldMap = new WorldMap(this);
+        this.minimap = new Minimap(this);
         this.grid = new Grid(this);
         
         this.app.stage.addChild(this.layers.background);
@@ -84,10 +86,10 @@ export class Game {
 
             const obj = new GameObject(this, body, {
                 layer: "surface",
-                cullable: true
+                cull: r * 2
             });
 
-            this.worldMap.register({
+            this.minimap.register({
                 x: x,
                 y: y,
                 graphic: new Graphics().beginFill(color).drawCircle(0, 0, r).endFill()
@@ -123,7 +125,7 @@ export class Game {
             obj.update(delta);
         }
 
-        this.worldMap.update(delta);
+        this.minimap.update(delta);
 
         Engine.update(this.engine, this.app.ticker.deltaMS, 1);
 
@@ -132,7 +134,7 @@ export class Game {
 
     resize() {
         this.camera.resize();
-        this.worldMap.resize();
+        this.minimap.resize();
         this.grid.resize();
     }
 

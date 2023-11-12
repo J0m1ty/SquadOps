@@ -1,4 +1,4 @@
-import { Container, Graphics, Text } from "pixi.js";
+import { BitmapText, Container, Graphics, Text } from "pixi.js";
 import { Component } from "../basic/component";
 import { Game } from "./game";
 
@@ -12,13 +12,18 @@ export class Debug implements Component {
 
     container: Container = new Container();
     background: Graphics = new Graphics();
-    textContainer: Container = new Container();
+    text: BitmapText;
 
     constructor(game: Game) {
         this.game = game;
 
+        this.text = new BitmapText("", {
+            fontName: "DebugFont",
+            align: "left",
+        });
+
         this.container.addChild(this.background);
-        this.container.addChild(this.textContainer);
+        this.container.addChild(this.text);
 
         this.game.layers.debug.addChild(this.container);
     }
@@ -36,20 +41,18 @@ export class Debug implements Component {
 
         this.background.clear();
         this.background.beginFill(0x000000, 0.5);
-        this.background.drawRoundedRect(20, this.game.height - height - 40, 200, height + 20, 10);
+        this.background.drawRoundedRect(20, this.game.height - height - 30, 200, height + 10, 10);
         this.background.endFill();
 
-        this.textContainer.removeChildren();
+        let text = "";
 
         this.data.forEach(({ value }, k) => {
-            const text = new Text(`${k}: ${value}`, {
-                align: "left",
-                fill: 0xffffff,
-                fontSize: 12
-            });
-            text.position.set(30, this.game.height - height - 30 + 15 * this.textContainer.children.length);
-            this.textContainer.addChild(text);
+            text += `${k}: ${value}` + "\n";
         });
+
+        this.text.text = text;
+
+        this.text.position.set(30, this.game.height - height - 20);
     }
 
     reset() {
