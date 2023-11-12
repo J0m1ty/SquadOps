@@ -1,5 +1,5 @@
-import { Application, Container } from 'pixi.js';
-import { Engine } from 'matter-js';
+import { Application, Color, Container, Graphics } from 'pixi.js';
+import { Bodies, Body, Engine } from 'matter-js';
 import { Camera } from './camera';
 import { InputManager } from '../input/inputManager';
 import { GameObject } from '../basic/gameObject';
@@ -19,16 +19,14 @@ export class Game {
     worldMap: WorldMap;
     grid: Grid;
     
-    updates: Record<Update, boolean> = {
-        loop: true,
-        resize: false
-    };
-    
     layers: Record<Layer, Container> = {
         background: new Container(),
         main: new Container(),
         ui: new Container()
     };
+
+    lastWidth: number = -1;
+    lastHeight: number = -1;
 
     get width() {
         return this.app.view.width;
@@ -52,26 +50,52 @@ export class Game {
         this.app.stage.addChild(this.layers.ui);
 
         this.app.ticker.add(this.update.bind(this));
-        
-        window.addEventListener('resize', () => {
-            this.updates.resize = true;
-        });
+
+        this.resize();
     }
 
     testGameObjs: GameObject[] = [];
     
     start() {
         this.app.ticker.start();
+        
+        for (let i = 0; i < 1000; i++) {
+            const x = Math.random() * 10000 - 5000;
+            const y = Math.random() * 10000 - 5000;
+            const r = Math.random() * 15 + 5
+            
+            const body = Bodies.circle(x, y, r);
+            
+            const color = new Color(Math.random() * 0xffffff);
+
+            const obj = new GameObject(this, body);
+
+            obj.blipColor = color;
+
+            this.testGameObjs.push(obj);
+
+            const graphic = new Graphics();
+            graphic.beginFill(color);
+            graphic.drawCircle(0, 0, r);
+            graphic.endFill();
+
+            obj.container.addChild(graphic);
+        }
     }
 
     update(delta: number) {
-        if (!this.updates.loop) return;
+        if (this.lastWidth != this.width || this.lastHeight != this.height) {
+            this.resize();
+        }
 
-        if (this.updates.resize) this.resize();
-        
         this.input.update(delta);
-        this.worldMap.update(delta);
         this.grid.update(delta);
+
+        for (let obj of this.testGameObjs) {
+            obj.update(delta);
+        }
+
+        this.worldMap.update(delta);
 
         Engine.update(this.engine, this.app.ticker.deltaMS, 1);
 
@@ -79,10 +103,9 @@ export class Game {
     }
 
     resize() {
+        this.camera.resize();
         this.worldMap.resize();
         this.grid.resize();
-
-        this.updates.resize = false;
     }
 
     reset() {

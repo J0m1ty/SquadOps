@@ -16,7 +16,7 @@ export class InputManager implements Component {
     click: boolean = false;
 
     scrollCount: number = 0;
-    scrollAmount: number = 1.33;
+    scrollAmount: number = 1.1;
 
     constructor(game: Game) {
         this.game = game;
@@ -38,8 +38,8 @@ export class InputManager implements Component {
 
         this.mouse.scroll((deltaY) => {
             this.scrollCount += deltaY;
-            this.scrollCount = clamp(this.scrollCount, -2, 4);
-            // this.game.camera.scale = Math.pow(this.scrollCount < 0 ? this.scrollAmount : (1 / this.scrollAmount), Math.abs(this.scrollCount));
+            // this.scrollCount = clamp(this.scrollCount, -2, 4);
+            this.game.camera.scale = Math.pow(this.scrollCount < 0 ? this.scrollAmount : (1 / this.scrollAmount), Math.abs(this.scrollCount));
         });
 
         this.keyboard.key('m').press(() => {
