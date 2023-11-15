@@ -1,9 +1,9 @@
 import { Game } from "../main/game";
 import { Container } from "@pixi/display";
 import { Body, Composite } from "matter-js";
-import { Layer, Rectangle } from "./types";
+import { Layer } from "./types";
 import { Component } from "./component";
-import { Point } from "pixi.js";
+import { Graphics, Point } from "pixi.js";
 
 export class GameObject implements Component {
     game: Game;

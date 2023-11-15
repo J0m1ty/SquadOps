@@ -2,7 +2,7 @@ import { Application, BitmapFont, Color, Container, Graphics, Rectangle } from '
 import { Bodies, Engine } from 'matter-js';
 import { InputManager } from '../input/inputManager';
 import { GameObject } from '../basic/gameObject';
-import { Minimap } from './minimap';
+import { Worldmap } from './worldmap';
 import { Layer } from '../basic/types';
 import { Grid } from './grid';
 import { PlayerManager } from './playerManager';
@@ -20,7 +20,7 @@ export class Game {
     input: InputManager;
     playerManager: PlayerManager;
     camera: TrackingCamera<GameObject>;
-    minimap: Minimap;
+    worldmap: Worldmap;
     grid: Grid;
     
     layers: Record<Layer, Container> = {
@@ -51,7 +51,7 @@ export class Game {
         this.input = new InputManager(this);
         this.playerManager = new PlayerManager(this);
         this.camera = new TrackingCamera(this, this.playerManager.agent);
-        this.minimap = new Minimap(this);
+        this.worldmap = new Worldmap(this);
         this.grid = new Grid(this);
         
         this.app.stage.addChild(this.layers.background);
@@ -61,8 +61,6 @@ export class Game {
         this.app.stage.addChild(this.layers.debug);
 
         this.app.ticker.add(this.update.bind(this));
-
-        this.resize();
     }
 
     testGameObjs: GameObject[] = [];
@@ -89,7 +87,7 @@ export class Game {
                 cull: r * 2
             });
 
-            this.minimap.register({
+            this.worldmap.register({
                 x: x,
                 y: y,
                 graphic: new Graphics().beginFill(color).drawCircle(0, 0, r).endFill()
@@ -104,12 +102,17 @@ export class Game {
 
             obj.container.addChild(graphic);
         }
+
+        this.worldmap.start();
     }
 
     update(delta: number) {
         if (this.lastWidth != this.width || this.lastHeight != this.height) {
             this.resize();
         }
+
+        this.lastWidth = this.width;
+        this.lastHeight = this.height;
 
         this.debug.set("FPS", `${Math.round(this.app.ticker.FPS)}`);
         this.debug.set("POS", `${Math.round(this.playerManager.agent.position.x)}, ${Math.round(this.playerManager.agent.position.y)}`);
@@ -125,7 +128,7 @@ export class Game {
             obj.update(delta);
         }
 
-        this.minimap.update(delta);
+        this.worldmap.update(delta);
 
         Engine.update(this.engine, this.app.ticker.deltaMS, 1);
 
@@ -134,7 +137,7 @@ export class Game {
 
     resize() {
         this.camera.resize();
-        this.minimap.resize();
+        this.worldmap.resize();
         this.grid.resize();
     }
 

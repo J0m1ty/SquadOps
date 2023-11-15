@@ -7,7 +7,7 @@ export class Mouse {
             this._scroll(e.deltaY == 0 ? 0 : (e.deltaY > 0 ? 1 : -1));
         };
         
-        window.addEventListener('wheel', scrollListener);
+        window.addEventListener('wheel', scrollListener, { passive: false });
 
         this.destroy = () => {
             window.removeEventListener('wheel', scrollListener);

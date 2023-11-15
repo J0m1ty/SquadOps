@@ -67,11 +67,11 @@ export class Camera implements StaticComponent {
     }
 
     cull = (point: { x: number, y: number }, r: number) => {
-        const { x, y } = this.out(point);
+        // const { x, y } = this.out(point);
 
         const { width, height } = this.game;
         
-        return x < -r || x > width + r || y < -r || y > height + r;
+        return !(point.x < -r || point.x > width + r || point.y < -r || point.y > height + r);
     }
 
     update(delta: number, smooth: { position: boolean, zoom: boolean } = { position: true, zoom: true }) {

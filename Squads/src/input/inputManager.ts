@@ -43,10 +43,10 @@ export class InputManager implements Component {
         });
 
         this.keyboard.key('m').press(() => {
-            this.game.minimap.visibility(!this.game.minimap.visible);
+            this.game.worldmap.visibility(!this.game.worldmap.visible);
         }).release(() => {
-            if (this.game.minimap.interactionMode != "toggle") {
-                this.game.minimap.visibility(false);
+            if (this.game.worldmap.interactionMode != "toggle") {
+                this.game.worldmap.visibility(false);
             }
         });
     }
