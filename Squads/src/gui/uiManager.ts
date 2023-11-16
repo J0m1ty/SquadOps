@@ -37,15 +37,29 @@ export class UIManager implements DynamicComponent {
         }
     }
 
+    debug: {
+        setHeight: (height: number) => void,
+    } = {
+        setHeight: (height: number) => {
+            this.builder.elements.debug && (this.builder.elements.debug.container.height = height);
+        }
+    }
+
     constructor(game: Game) {
         this.game = game;
         this.builder = new UIBuilder(this);
     }
 
     update(delta: number) {
+        const w = this.builder.minimap.width / this.game.input.maxZoom;
+        const h = this.builder.minimap.height / this.game.input.maxZoom;
+        const mx = map(-this.game.playerManager.agent.position.x * this.game.input.maxZoom, -this.worldmap.range / 2, this.worldmap.range / 2, 0, w) + 10;
+        const my = map(-this.game.playerManager.agent.position.y * this.game.input.maxZoom, -this.worldmap.range / 2, this.worldmap.range / 2, 0, h) + 10;
+        this.builder.minimap.position.set(mx, my);
+
         if (this.worldmap.visible) {
-            const px = map(this.game.playerManager.agent.position.x, - this.worldmap.range / 2, this.worldmap.range / 2, 0, this.builder.worldmap.width) + 10;
-            const py = map(this.game.playerManager.agent.position.y, - this.worldmap.range / 2, this.worldmap.range / 2, 0, this.builder.worldmap.height) + 10;
+            const px = map(this.game.playerManager.agent.position.x, -this.worldmap.range / 2, this.worldmap.range / 2, 0, this.builder.worldmap.width) + 10;
+            const py = map(this.game.playerManager.agent.position.y, -this.worldmap.range / 2, this.worldmap.range / 2, 0, this.builder.worldmap.height) + 10;
             this.builder.player.position.set(px, py);
 
             this.builder.viewport.clear();

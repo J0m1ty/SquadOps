@@ -1,4 +1,4 @@
-import { Container, Graphics, Sprite } from "pixi.js";
+import { BitmapText, Container, Graphics, Sprite } from "pixi.js";
 import { Component } from "../basic/component";
 import { UIComponent } from "./uiComponent";
 import { UIManager } from "./uiManager";
@@ -15,8 +15,15 @@ export class UIBuilder {
     player: Graphics = new Graphics();
     viewport: Graphics = new Graphics();
 
+    debug: BitmapText;
+
     constructor(manager: UIManager) {
         this.manager = manager;
+
+        this.debug = new BitmapText("", {
+            fontName: "DebugFont",
+            align: "left",
+        });
     }
 
     generateMapTexture = () => {
@@ -32,7 +39,7 @@ export class UIBuilder {
         const size = 1024;
 
         const background = new Graphics();
-        background.beginFill(0x000000, 0.66);
+        background.beginFill(0x000000, 0.1);
         background.drawRect(0, 0, size, size);
         background.endFill();
         generator.container.addChild(background);
@@ -82,6 +89,12 @@ export class UIBuilder {
             background.endFill();
             this.elements.minimapContainer.container.addChild(background);
 
+            const fill = new Graphics();
+            fill.beginFill(0x04232b);
+            fill.drawRect(10, 10, size - 20, size - 20);
+            fill.endFill();
+            this.elements.minimapContainer.container.addChild(fill);
+
             const mask = new Graphics();
             mask.beginFill(0xffffff);
             mask.drawRect(10, 10, size - 20, size - 20);
@@ -102,7 +115,15 @@ export class UIBuilder {
             this.minimap.anchor.set(0.5);
             this.minimap.position.set(size / 2, size / 2);
             this.minimap.width = this.minimap.height = size - 20;
+            this.minimap.scale = this.minimap.scale.multiplyScalar(this.manager.game.input.maxZoom);
             this.elements.minimap.container.addChild(this.minimap);
+
+            const center = new Graphics();
+            center.beginFill(0xffffff);
+            center.drawCircle(0, 0, this.manager.game.playerManager.agent.size * (size / this.manager.worldmap.range) * 2);
+            center.endFill();
+            center.position.set(size / 2, size / 2);
+            this.elements.minimap.container.addChild(center);
         })();
 
         (() => {
@@ -117,6 +138,9 @@ export class UIBuilder {
             background.drawRoundedRect(0, 0, 150, 50, 10);
             background.endFill();
             this.elements.debug.container.addChild(background);
+
+            this.debug.position.set(10, 8);
+            this.elements.debug.container.addChild(this.debug);
         })();
 
         (() => {
@@ -136,6 +160,12 @@ export class UIBuilder {
             background.drawRoundedRect(0, 0, size, size, 10);
             background.endFill();
             this.elements.worldmapContainer.container.addChild(background);
+
+            const fill = new Graphics();
+            fill.beginFill(0x04232b);
+            fill.drawRect(10, 10, size - 20, size - 20);
+            fill.endFill();
+            this.elements.worldmapContainer.container.addChild(fill);
 
             const mask = new Graphics();
             mask.beginFill(0xffffff);

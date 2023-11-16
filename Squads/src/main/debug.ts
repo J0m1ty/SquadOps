@@ -10,26 +10,12 @@ export class Debug implements DynamicComponent {
         timestamp: number
     }> = new Map();
 
-    container: Container = new Container();
-    background: Graphics = new Graphics();
-    text: BitmapText;
-
     constructor(game: Game) {
         this.game = game;
-
-        this.text = new BitmapText("", {
-            fontName: "DebugFont",
-            align: "left",
-        });
-
-        this.container.addChild(this.background);
-        this.container.addChild(this.text);
-
-        this.game.layers.debug.addChild(this.container);
     }
     
     set(key: string, value: string) {
-        if (this.data.size > 10) return;
+        if (this.data.size >= 3) return;
         this.data.set(key, {
             value,
             timestamp: Date.now()
@@ -37,22 +23,13 @@ export class Debug implements DynamicComponent {
     }
 
     update(delta: number) {
-        const height = this.data.size * 15;
-
-        this.background.clear();
-        this.background.beginFill(0x000000, 0.5);
-        this.background.drawRoundedRect(20, this.game.height - height - 30, 200, height + 10, 10);
-        this.background.endFill();
-
         let text = "";
 
         this.data.forEach(({ value }, k) => {
             text += `${k}: ${value}` + "\n";
         });
 
-        this.text.text = text;
-
-        this.text.position.set(30, this.game.height - height - 20);
+        this.game.gui.builder.debug.text = text;
     }
 
     reset() {

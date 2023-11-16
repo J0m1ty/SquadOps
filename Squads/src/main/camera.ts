@@ -67,8 +67,6 @@ export class Camera implements Component {
     }
 
     cull = (point: { x: number, y: number }, r: number) => {
-        // const { x, y } = this.out(point);
-
         const { width, height } = this.game;
         
         return !(point.x < -r || point.x > width + r || point.y < -r || point.y > height + r);

@@ -17,6 +17,11 @@ export class InputManager implements DynamicComponent {
 
     scrollCount: number = 0;
     scrollAmount: number = 1.33;
+    scrollBounds: { min: number, max: number } = { min: -2, max: 4 };
+
+    get maxZoom() {
+        return Math.pow(this.scrollAmount, this.scrollBounds.max);
+    }
 
     constructor(game: Game) {
         this.game = game;
@@ -38,7 +43,7 @@ export class InputManager implements DynamicComponent {
 
         this.mouse.scroll((deltaY) => {
             this.scrollCount += deltaY;
-            this.scrollCount = clamp(this.scrollCount, -2, 4);
+            this.scrollCount = clamp(this.scrollCount, this.scrollBounds.min, this.scrollBounds.max);
             this.game.camera.zoom = Math.pow(this.scrollCount < 0 ? this.scrollAmount : (1 / this.scrollAmount), Math.abs(this.scrollCount));
         });
 
