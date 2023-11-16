@@ -1,8 +1,8 @@
 import { Color, Container, Graphics } from "pixi.js";
 import { Game } from "./game";
-import { Component } from "../basic/component";
+import { DynamicComponent } from "../basic/component";
 
-export class Grid implements Component {
+export class Grid implements DynamicComponent {
     game: Game;
 
     grid: Graphics[] = [];

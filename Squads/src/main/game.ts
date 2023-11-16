@@ -9,18 +9,20 @@ import { PlayerManager } from './playerManager';
 import { TrackingCamera } from './trackingCamera';
 import { Debug } from './debug';
 import { Fonts } from '../basic/fonts';
+import { UIManager } from '../gui/uiManager';
 
 export class Game {
     app: Application;
     engine: Engine;
     
-    // SComponents
+    // Components
     fonts: Fonts;
     debug: Debug;
     input: InputManager;
     playerManager: PlayerManager;
     camera: TrackingCamera<GameObject>;
     worldmap: Worldmap;
+    gui: UIManager;
     grid: Grid;
     
     layers: Record<Layer, Container> = {
@@ -45,6 +47,12 @@ export class Game {
     constructor(app: Application, engine: Engine) {
         this.app = app;
         this.engine = engine;
+
+        this.app.stage.addChild(this.layers.background);
+        this.app.stage.addChild(this.layers.surface);
+        this.app.stage.addChild(this.layers.player);
+        this.app.stage.addChild(this.layers.ui);
+        this.app.stage.addChild(this.layers.debug);
         
         this.fonts = new Fonts(this);
         this.debug = new Debug(this);
@@ -52,13 +60,8 @@ export class Game {
         this.playerManager = new PlayerManager(this);
         this.camera = new TrackingCamera(this, this.playerManager.agent);
         this.worldmap = new Worldmap(this);
+        this.gui = new UIManager(this);
         this.grid = new Grid(this);
-        
-        this.app.stage.addChild(this.layers.background);
-        this.app.stage.addChild(this.layers.surface);
-        this.app.stage.addChild(this.layers.player);
-        this.app.stage.addChild(this.layers.ui);
-        this.app.stage.addChild(this.layers.debug);
 
         this.app.ticker.add(this.update.bind(this));
     }
@@ -129,6 +132,7 @@ export class Game {
         }
 
         this.worldmap.update(delta);
+        this.gui.update(delta);
 
         Engine.update(this.engine, this.app.ticker.deltaMS, 1);
 
@@ -136,6 +140,7 @@ export class Game {
     }
 
     resize() {
+        this.gui.resize();
         this.camera.resize();
         this.worldmap.resize();
         this.grid.resize();

@@ -1,7 +1,7 @@
 import { Color, Container, Graphics, Point, Sprite, Texture } from "pixi.js";
 import { Game } from "./game";
 import { map } from "../util/math";
-import { Component, StaticComponent } from "../basic/component";
+import { DynamicComponent, Component } from "../basic/component";
 import { InteractionMode } from "../basic/types";
 import { GameObject } from "../basic/gameObject";
 
@@ -11,7 +11,7 @@ type Blip = {
     graphic: Graphics
 }
 
-export class Worldmap implements Component {
+export class Worldmap implements DynamicComponent {
     game: Game;
 
     worldmapContainer: Container = new Container();
@@ -75,7 +75,7 @@ export class Worldmap implements Component {
 
         const worldmap = new Graphics();
 
-        worldmap.beginFill(0x000000);
+        worldmap.beginFill(0x0b6f87);
         worldmap.drawRect(x, y, size, size);
         worldmap.endFill();
 
@@ -101,7 +101,10 @@ export class Worldmap implements Component {
     start() {
         console.log("hi")
         const texture = this.generateWorldmapTexture();
-        this.worldmap.texture = texture;
+        this.game.gui.builder.worldmap.texture = texture.clone();
+        this.game.gui.builder.minimap.texture = texture.clone();
+
+        texture.destroy();
     }
 
     generate() {

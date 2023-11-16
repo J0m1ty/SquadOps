@@ -1,8 +1,8 @@
 import { BitmapFont } from "pixi.js";
 import { Game } from "../main/game";
-import { StaticComponent } from "./component";
+import { Component } from "./component";
 
-export class Fonts implements StaticComponent {
+export class Fonts implements Component {
     game: Game;
 
     constructor(game: Game) {

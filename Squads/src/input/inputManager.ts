@@ -2,10 +2,10 @@ import { Body, Vector } from "matter-js";
 import { Game } from "../main/game";
 import { Keyboard } from "./keyboard";
 import { Mouse } from "./mouse";
-import { Component } from "../basic/component";
+import { DynamicComponent } from "../basic/component";
 import { clamp } from "../util/math";
 
-export class InputManager implements Component {
+export class InputManager implements DynamicComponent {
     game: Game;
 
     mouse: Mouse;
@@ -43,10 +43,10 @@ export class InputManager implements Component {
         });
 
         this.keyboard.key('m').press(() => {
-            this.game.worldmap.visibility(!this.game.worldmap.visible);
+            this.game.gui.worldmapVisibility(!this.game.gui.worldmap.visible);
         }).release(() => {
-            if (this.game.worldmap.interactionMode != "toggle") {
-                this.game.worldmap.visibility(false);
+            if (this.game.gui.worldmap.interactionMode != 'toggle') {
+                this.game.gui.worldmapVisibility(false);
             }
         });
     }

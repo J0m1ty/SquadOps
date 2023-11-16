@@ -1,8 +1,8 @@
 import { BitmapText, Container, Graphics, Text } from "pixi.js";
-import { Component } from "../basic/component";
+import { DynamicComponent } from "../basic/component";
 import { Game } from "./game";
 
-export class Debug implements Component {
+export class Debug implements DynamicComponent {
     game: Game;
 
     data: Map<string, {

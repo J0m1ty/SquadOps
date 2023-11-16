@@ -1,10 +1,10 @@
 import { Game } from "../main/game";
 
-export interface StaticComponent {
+export interface Component {
     game: Game;
 }
 
-export interface Component extends StaticComponent {
+export interface DynamicComponent extends Component {
     update(delta: number): void;
 
     resize?(): void;

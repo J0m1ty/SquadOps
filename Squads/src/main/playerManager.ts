@@ -1,8 +1,8 @@
-import { Component } from "../basic/component";
+import { DynamicComponent } from "../basic/component";
 import { Agent } from "../basic/agent";
 import { Game } from "./game";
 
-export class PlayerManager implements Component {
+export class PlayerManager implements DynamicComponent {
     game: Game;
 
     agent: Agent;

@@ -2,10 +2,10 @@ import { Game } from "../main/game";
 import { Container } from "@pixi/display";
 import { Body, Composite } from "matter-js";
 import { Layer } from "./types";
-import { Component } from "./component";
+import { DynamicComponent } from "./component";
 import { Graphics, Point } from "pixi.js";
 
-export class GameObject implements Component {
+export class GameObject implements DynamicComponent {
     game: Game;
 
     body: Body;

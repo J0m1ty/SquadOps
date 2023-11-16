@@ -1,11 +1,11 @@
 import { Vector } from "matter-js";
-import { StaticComponent } from "../basic/component";
+import { Component } from "../basic/component";
 import { Game } from "./game";
 import "@pixi/math-extras";
 import { Point } from "pixi.js";
 import { lerp } from "../util/math";
 
-export class Camera implements StaticComponent {
+export class Camera implements Component {
     game: Game;
 
     protected targetPos: { x: number, y: number } = { x: 0, y: 0 };
