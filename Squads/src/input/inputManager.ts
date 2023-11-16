@@ -43,10 +43,10 @@ export class InputManager implements DynamicComponent {
         });
 
         this.keyboard.key('m').press(() => {
-            this.game.gui.worldmapVisibility(!this.game.gui.worldmap.visible);
+            this.game.gui.worldmap.setVisibility(!this.game.gui.worldmap.visible);
         }).release(() => {
             if (this.game.gui.worldmap.interactionMode != 'toggle') {
-                this.game.gui.worldmapVisibility(false);
+                this.game.gui.worldmap.setVisibility(false);
             }
         });
     }

@@ -2,7 +2,6 @@ import { Application, BitmapFont, Color, Container, Graphics, Rectangle } from '
 import { Bodies, Engine } from 'matter-js';
 import { InputManager } from '../input/inputManager';
 import { GameObject } from '../basic/gameObject';
-import { Worldmap } from './worldmap';
 import { Layer } from '../basic/types';
 import { Grid } from './grid';
 import { PlayerManager } from './playerManager';
@@ -21,7 +20,6 @@ export class Game {
     input: InputManager;
     playerManager: PlayerManager;
     camera: TrackingCamera<GameObject>;
-    worldmap: Worldmap;
     gui: UIManager;
     grid: Grid;
     
@@ -59,7 +57,6 @@ export class Game {
         this.input = new InputManager(this);
         this.playerManager = new PlayerManager(this);
         this.camera = new TrackingCamera(this, this.playerManager.agent);
-        this.worldmap = new Worldmap(this);
         this.gui = new UIManager(this);
         this.grid = new Grid(this);
 
@@ -90,11 +87,7 @@ export class Game {
                 cull: r * 2
             });
 
-            this.worldmap.register({
-                x: x,
-                y: y,
-                graphic: new Graphics().beginFill(color).drawCircle(0, 0, r).endFill()
-            });
+            this.gui.worldmap.register(x, y, new Graphics().beginFill(color).drawCircle(0, 0, r).endFill());
 
             this.testGameObjs.push(obj);
 
@@ -106,7 +99,7 @@ export class Game {
             obj.container.addChild(graphic);
         }
 
-        this.worldmap.start();
+        this.gui.builder.start();
     }
 
     update(delta: number) {
@@ -130,8 +123,7 @@ export class Game {
         for (let obj of this.testGameObjs) {
             obj.update(delta);
         }
-
-        this.worldmap.update(delta);
+        
         this.gui.update(delta);
 
         Engine.update(this.engine, this.app.ticker.deltaMS, 1);
@@ -142,7 +134,6 @@ export class Game {
     resize() {
         this.gui.resize();
         this.camera.resize();
-        this.worldmap.resize();
         this.grid.resize();
     }
 

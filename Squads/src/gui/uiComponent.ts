@@ -1,15 +1,11 @@
 import { Container } from "pixi.js";
-import { Anchor } from "../basic/types";
+import { Anchor, Dimention } from "../basic/types";
 import { UIManager } from "./uiManager";
-
-
-
-type Dimention = number | `${number}%`;
 
 export class UIComponent {
     manager: UIManager;
 
-    parent: UIComponent | Container | null = null;
+    parent?: UIComponent | Container | null;
     children: UIComponent[] = [];
 
     container: Container = new Container();
@@ -55,7 +51,7 @@ export class UIComponent {
         return this.relativeTo === 'parent' ? this.parentHeight : this.globalHeight;
     }
      
-    constructor(manager: UIManager, parent: UIComponent | Container | null = null, options: {
+    constructor(manager: UIManager, parent: UIComponent | Container | null | undefined, options: {
         size?: 'static' | { w: Dimention, h: Dimention } | ((w: number, h: number) => { w: number, h: number }),
         relativeTo?: 'parent' | 'global',
         position?: 'relative' | { x: number, y: number },
@@ -83,7 +79,7 @@ export class UIComponent {
         else if (parent instanceof UIComponent) {
             parent.children.push(this);
         }
-        else {
+        else if (parent === null) {
             this.manager.game.layers.ui.addChild(this.container);
             manager.children.push(this);
         }
@@ -107,6 +103,27 @@ export class UIComponent {
 
         for (const child of this.children) {
             child.resize();
+        }
+    }
+
+    destroy() {
+        if (this.parent instanceof UIComponent) {
+            this.parent.children.splice(this.parent.children.indexOf(this), 1);
+        }
+        else if (this.parent instanceof Container) {
+            this.parent.removeChild(this.container);
+        }
+        else if (this.parent === null) {
+            this.manager.children.splice(this.manager.children.indexOf(this), 1);
+        }
+
+        this.container.destroy({
+            children: true,
+            texture: true
+        });
+
+        for (const child of this.children) {
+            child.destroy();
         }
     }
 }

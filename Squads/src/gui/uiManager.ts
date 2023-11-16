@@ -4,6 +4,7 @@ import { UIComponent } from "./uiComponent";
 import { UIBuilder } from "./uiBuilder";
 import { map } from "../util/math";
 import { InteractionMode } from "../basic/types";
+import { Graphics } from "pixi.js";
 
 export class UIManager implements DynamicComponent {
     game: Game;
@@ -14,26 +15,31 @@ export class UIManager implements DynamicComponent {
     worldmap: {
         visible: boolean,
         range: number,
-        interactionMode: InteractionMode
+        interactionMode: InteractionMode,
+        blips: {
+            x: number,
+            y: number,
+            graphic: Graphics
+        }[],
+        setVisibility: (set: boolean) => void,
+        register: (x: number, y: number, graphic: Graphics) => void
     } = {
         visible: false,
         range: 10000,
-        interactionMode: 'toggle'
+        interactionMode: 'toggle',
+        blips: [],
+        setVisibility: (set: boolean) => {
+            this.worldmap.visible = set;
+            this.builder.elements.worldmapContainer && (this.builder.elements.worldmapContainer.container.visible = set);
+        },
+        register: (x: number, y: number, graphic: Graphics) => {
+            this.worldmap.blips.push({ x, y, graphic });
+        }
     }
 
     constructor(game: Game) {
         this.game = game;
         this.builder = new UIBuilder(this);
-        
-        this.builder.start();
-
-        this.worldmapVisibility(true);
-    }
-
-    worldmapVisibility = (set: boolean) => {
-        this.worldmap.visible = set;
-
-        this.builder.elements.worldmapContainer && (this.builder.elements.worldmapContainer.container.visible = set);
     }
 
     update(delta: number) {
@@ -43,7 +49,7 @@ export class UIManager implements DynamicComponent {
             this.builder.player.position.set(px, py);
 
             this.builder.viewport.clear();
-            this.builder.viewport.lineStyle(2, 0xffffff);
+            this.builder.viewport.lineStyle(1, 0xffffff);
             const tl = this.game.camera.out(0, 0);
             const br = this.game.camera.out(this.game.width, this.game.height);
             const tlx = map(tl.x, - this.worldmap.range / 2, this.worldmap.range / 2, 0, this.builder.worldmap.width) + 10;
