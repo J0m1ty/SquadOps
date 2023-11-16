@@ -7,7 +7,7 @@ export class Grid implements DynamicComponent {
 
     grid: Graphics[] = [];
 
-    gap: number = 200;
+    gap: number = 400;
 
     container: Container = new Container();
 

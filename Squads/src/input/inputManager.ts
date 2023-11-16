@@ -41,11 +41,19 @@ export class InputManager implements DynamicComponent {
             this.click = true;
         });
 
+        this.game.app.stage.addEventListener("rightclick", (e) => {
+            this.click = true;
+        });
+
         this.mouse.scroll((deltaY) => {
             this.scrollCount += deltaY;
             this.scrollCount = clamp(this.scrollCount, this.scrollBounds.min, this.scrollBounds.max);
             this.game.camera.zoom = Math.pow(this.scrollCount < 0 ? this.scrollAmount : (1 / this.scrollAmount), Math.abs(this.scrollCount));
         });
+
+        document.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+        }, false);
 
         this.keyboard.key('m').press(() => {
             this.game.gui.worldmap.setVisibility(!this.game.gui.worldmap.visible);
