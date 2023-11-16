@@ -15,7 +15,7 @@ export class Debug implements DynamicComponent {
     }
     
     set(key: string, value: string) {
-        if (this.data.size >= 3) return;
+        if (this.data.size > 3 && !this.data.has("key")) return;
         this.data.set(key, {
             value,
             timestamp: Date.now()
