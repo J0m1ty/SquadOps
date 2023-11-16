@@ -9,6 +9,7 @@ import { TrackingCamera } from './trackingCamera';
 import { Debug } from './debug';
 import { Fonts } from '../basic/fonts';
 import { UIManager } from '../gui/uiManager';
+import { Test } from './test';
 
 export class Game {
     app: Application;
@@ -22,6 +23,7 @@ export class Game {
     camera: TrackingCamera<GameObject>;
     gui: UIManager;
     grid: Grid;
+    test: Test;
     
     layers: Record<Layer, Container> = {
         background: new Container(),
@@ -59,45 +61,15 @@ export class Game {
         this.camera = new TrackingCamera(this, this.playerManager.agent);
         this.gui = new UIManager(this);
         this.grid = new Grid(this);
+        this.test = new Test(this);
 
         this.app.ticker.add(this.update.bind(this));
     }
-
-    testGameObjs: GameObject[] = [];
     
     start() {
         this.app.ticker.start();
         
-        for (let i = 0; i < 1000; i++) {
-            const x = Math.random() * 10000 - 5000;
-            const y = Math.random() * 10000 - 5000;
-            const r = Math.random() * 100 + 5
-            
-            const body = Bodies.circle(x, y, r, {
-                friction: 0,
-                frictionAir: 0,
-                frictionStatic: 0,
-                isStatic: true
-            });
-            
-            const color = new Color(Math.random() * 0xffffff);
-
-            const obj = new GameObject(this, body, {
-                layer: "surface",
-                cull: r * 2
-            });
-
-            this.gui.worldmap.register(x, y, new Graphics().beginFill(color).drawCircle(0, 0, r).endFill());
-
-            this.testGameObjs.push(obj);
-
-            const graphic = new Graphics();
-            graphic.beginFill(color);
-            graphic.drawCircle(0, 0, r);
-            graphic.endFill();
-
-            obj.container.addChild(graphic);
-        }
+        this.test.start();
 
         this.gui.builder.start();
     }
@@ -119,12 +91,8 @@ export class Game {
         this.camera.update(delta);
         this.grid.update(delta);
         this.playerManager.update(delta);
-
-        for (let obj of this.testGameObjs) {
-            obj.update(delta);
-        }
-        
         this.gui.update(delta);
+        this.test.update(delta);
 
         Engine.update(this.engine, this.app.ticker.deltaMS, 1);
 
