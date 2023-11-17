@@ -1,5 +1,5 @@
-import { Application, BitmapFont, Color, Container, Graphics, Rectangle } from 'pixi.js';
-import { Bodies, Engine } from 'matter-js';
+import { Application, Container } from 'pixi.js';
+import { Engine } from 'matter-js';
 import { InputManager } from '../input/inputManager';
 import { GameObject } from '../basic/gameObject';
 import { Layer } from '../basic/types';
