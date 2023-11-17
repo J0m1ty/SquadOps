@@ -1,8 +1,6 @@
-import { Vector } from "matter-js";
 import { Component } from "../basic/component";
 import { Game } from "./game";
 import "@pixi/math-extras";
-import { Point } from "pixi.js";
 import { lerp } from "../util/math";
 
 export class Camera implements Component {

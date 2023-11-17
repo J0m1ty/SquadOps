@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "ES5",
+        "target": "ESNext",
         "module": "NodeNext",
         "moduleResolution": "NodeNext",
         "outDir": "dist",
@@ -10,6 +10,6 @@
         "skipLibCheck": true
     },
     "include": [
-        "src/**/*"
+        "src/server/index.ts"
     ]
 }

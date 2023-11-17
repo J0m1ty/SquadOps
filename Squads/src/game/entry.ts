@@ -12,4 +12,12 @@ import { Game } from './main/game';
 
     const game = new Game(app, engine);
     game.start();
+
+    const source = new EventSource('/sse');
+
+    source.addEventListener('message', (event) => {
+        const data = JSON.parse(event.data);
+        
+        console.log(data);
+    });
 })();
