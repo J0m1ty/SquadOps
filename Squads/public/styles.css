@@ -7,6 +7,11 @@ html, body {
     font-family: monospace;
 }
 
+.loading-content {
+    text-align: center;
+    color: #fff;
+}
+
 .overlay {
     position: fixed;
     top: 0;
@@ -18,11 +23,6 @@ html, body {
     justify-content: center;
     align-items: center;
     z-index: 999;
-}
-
-.loading-content {
-    text-align: center;
-    color: #fff;
 }
 
 .spinner {
@@ -38,4 +38,32 @@ html, body {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.progress-container {
+    position: absolute;
+    bottom: 5%;
+    width: 100%;
+    text-align: center;
+}
+
+.progress-bar {
+    width: 70%;
+    height: 10px; 
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    margin: 0 auto;
+}
+
+.progress {
+    height: 100%;
+    background-color: #fff;
+    width: 0%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+#progress-text {
+    color: #fff;
+    margin-top: 10px;
 }

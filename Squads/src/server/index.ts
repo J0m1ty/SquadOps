@@ -1,9 +1,11 @@
 // express
 import express from 'express';
-import { createServer } from 'https';
+import { createServer } from 'http';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import cors from 'cors';
+
+const PORT = 3000;
 
 const app = express();
 app.use(cors());
@@ -24,21 +26,20 @@ app.get('/sse', (req, res) => {
     res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
+        'Connection': 'keep-alive',
     });
 
     res.write('data: {"message": "hello world"}\n\n');
 
     setInterval(() => {
+        console.log("sending")
         res.write('data: {"message": "hello world"}\n\n');
     }, 1000);
 });
 
-const server = createServer({
-    cert: readFileSync('/etc/letsencrypt/live/jomity.net/cert.pem'),
-    key: readFileSync('/etc/letsencrypt/live/jomity.net/privkey.pem')
-}, app);
 
-server.listen(3031, () => {
-    console.log('Listening on port 3031');
+const server = createServer(app);
+
+server.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}`);
 });

@@ -21,7 +21,7 @@ module.exports = {
                 },
                 mangle: true,
             },
-        })],
+        })]
     },
     output: {
         filename: 'bundle.js',

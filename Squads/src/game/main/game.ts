@@ -10,12 +10,14 @@ import { Debug } from './debug';
 import { Fonts } from '../basic/fonts';
 import { UIManager } from '../gui/uiManager';
 import { Test } from './test';
+import { Asset, Loader } from '../assets/loader';
 
 export class Game {
     app: Application;
     engine: Engine;
     
     // Components
+    loader: Loader;
     fonts: Fonts;
     debug: Debug;
     input: InputManager;
@@ -44,7 +46,7 @@ export class Game {
         return this.app.view.height;
     }
     
-    constructor(app: Application, engine: Engine) {
+    constructor(app: Application, engine: Engine, ) {
         this.app = app;
         this.engine = engine;
 
@@ -54,6 +56,7 @@ export class Game {
         this.app.stage.addChild(this.layers.ui);
         this.app.stage.addChild(this.layers.debug);
         
+        this.loader = new Loader(this);
         this.fonts = new Fonts(this);
         this.debug = new Debug(this);
         this.input = new InputManager(this);
