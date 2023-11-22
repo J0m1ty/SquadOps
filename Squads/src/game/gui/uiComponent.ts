@@ -1,5 +1,5 @@
 import { Container } from "pixi.js";
-import { Anchor, Dimention } from "../basic/types";
+import { Anchor, Dimention } from "./types";
 import { UIManager } from "./uiManager";
 
 export class UIComponent {
