@@ -66,8 +66,10 @@ export class Camera implements Component {
 
     cull = (point: { x: number, y: number }, r: number) => {
         const { width, height } = this.game;
+
+        const range = r * this.scale;
         
-        return !(point.x < -r || point.x > width + r || point.y < -r || point.y > height + r);
+        return !(point.x < -range || point.x > width + range || point.y < -range || point.y > height + range);
     }
 
     update(delta: number, smooth: { position: boolean, zoom: boolean } = { position: true, zoom: true }) {

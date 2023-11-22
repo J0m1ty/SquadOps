@@ -63,8 +63,9 @@ export class Agent extends GameObject {
         if (this.equipped != null) return;
 
         this.animate({
-            target: new Point(35, -20),
             side,
+            vertical: "above",
+            target: new Point(35, -20),
             start: this.game.app.ticker.lastTime,
             duration: 250,
             next: "back"

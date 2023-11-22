@@ -8,22 +8,9 @@ export class Gun implements Equippable {
     asset: AssetName;
     idle: DuelHandAnimation;
 
-    constructor(name: string, asset: AssetName, idle: {left: Point, right: Point }) {
+    constructor(name: string, asset: AssetName, idle: DuelHandAnimation) {
         this.name = name;
         this.asset = asset;
-        this.idle = {
-            left: {
-                side: "left",
-                target: idle.left,
-                start: 0,
-                duration: 0
-            },
-            right: {
-                side: "right",
-                target: idle.right,
-                start: 0,
-                duration: 0
-            }
-        }
+        this.idle = idle;
     }
 }
