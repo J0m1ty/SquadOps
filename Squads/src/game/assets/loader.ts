@@ -52,4 +52,8 @@ export class Loader implements Component {
         
         this.assets.set(asset.name, texture);
     }
+
+    getAsset<T extends string>(name: T) {
+        return this.assets.get(name) ?? Texture.WHITE;
+    }
 }

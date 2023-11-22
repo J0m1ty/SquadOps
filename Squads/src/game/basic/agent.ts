@@ -59,6 +59,10 @@ export class Agent extends GameObject {
         this.hands.addChild(this.rightHand);
     }
 
+    equip = (item: Equippable) => {
+        this.equipped = item;
+    }
+
     punch = (side: Hand) => {
         if (this.equipped != null) return;
 
