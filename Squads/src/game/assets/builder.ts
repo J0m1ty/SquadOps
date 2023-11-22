@@ -1,13 +1,16 @@
-import { Graphics, Texture } from "pixi.js";
-import { Asset } from "./loader";
+import { Graphics } from "pixi.js";
+import { RawAsset } from "./loader";
 
-export const Assets: Asset[] = [
+export type AssetName = 'gun_long' | 'gun_short';
+
+export const RawAssets: RawAsset<AssetName>[] = [
     {
         name: 'gun_long',
         generator: async () => {
             const graphic = new Graphics();
-            graphic.beginFill(0x000000);
-            graphic.drawRect(0, 0, 100, 10);
+            graphic.lineStyle(2, 0x4b4b4b);
+            graphic.beginFill(0xfdfdfd);
+            graphic.drawRoundedRect(0, 0, 10, 122, 30);
             graphic.endFill();
             return graphic;
         }
@@ -16,8 +19,9 @@ export const Assets: Asset[] = [
         name: 'gun_short',
         generator: async () => {
             const graphic = new Graphics();
-            graphic.beginFill(0x000000);
-            graphic.drawRect(0, 0, 50, 10);
+            graphic.lineStyle(2, 0x4b4b4b);
+            graphic.beginFill(0xfdfdfd);
+            graphic.drawRect(0, 0, 18, 66);
             graphic.endFill();
             return graphic;
         }

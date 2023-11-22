@@ -1,17 +1,11 @@
 import { Bodies } from "matter-js";
 import { GameObject } from "./gameObject";
 import { Game } from "../main/game";
-import { Hand } from "./types";
+import { Hand, HandAnimation } from "../items/types";
 import { Container, Graphics, Point } from "pixi.js";
 import { angleBetween, angleTo, map, smoothstep } from "../util/math";
-
-export type HandAnimation = {
-    target: { x: number, y: number }
-    start: number;
-    side: Hand;
-    goBack: boolean;
-    duration: number;
-}
+import { Gun } from "../items/gun";
+import { Equippable } from "../items/equippable";
 
 export class Agent extends GameObject {
     protected _rotation: number = 0;
@@ -22,6 +16,8 @@ export class Agent extends GameObject {
     hands: Container = new Container();
     leftHand: Graphics = new Graphics();
     rightHand: Graphics = new Graphics();
+
+    equipped: Equippable | null = null;
 
     animations: HandAnimation[] = [];
 
@@ -64,12 +60,14 @@ export class Agent extends GameObject {
     }
 
     punch = (side: Hand) => {
+        if (this.equipped != null) return;
+
         this.animate({
             target: new Point(35, -20),
             side,
-            goBack: true,
             start: this.game.app.ticker.lastTime,
             duration: 250,
+            next: "back"
         });
     }
 
@@ -110,10 +108,10 @@ export class Agent extends GameObject {
             hand.position.y = map(smoothstep(0, anim.duration, elapsed), 0, 1, hand.position.y, total.y);
             
             if (Math.abs(hand.position.x - total.x) < 0.5 && Math.abs(hand.position.x - total.x) < 0.5) {
-                if (anim.goBack) {
+                if (anim.next == "back") {
                     anim.start = this.game.app.ticker.lastTime;
                     anim.target = new Point(0, 0);
-                    anim.goBack = false;
+                    delete anim.next;
                 }
                 else {
                     this.animations.splice(i, 1);

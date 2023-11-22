@@ -1,4 +1,4 @@
-import { Assets } from './assets/builder';
+import { RawAssets } from './assets/builder';
 import { app } from './core/app';
 import { engine } from './core/engine';
 import { Game } from './main/game';
@@ -18,7 +18,7 @@ import { Game } from './main/game';
     
     const game = new Game(app, engine);
 
-    game.loader.load(Assets, (update) => {
+    game.loader.load(RawAssets, (update) => {
         progressText.innerText = update;
     }, (value) => {
         progress.style.width = `${value * 100}%`;

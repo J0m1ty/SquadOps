@@ -10,7 +10,7 @@ import { Debug } from './debug';
 import { Fonts } from '../basic/fonts';
 import { UIManager } from '../gui/uiManager';
 import { Test } from './test';
-import { Asset, Loader } from '../assets/loader';
+import { RawAsset, Loader } from '../assets/loader';
 
 export class Game {
     app: Application;
@@ -71,9 +71,7 @@ export class Game {
     
     start() {
         this.app.ticker.start();
-        
         this.test.start();
-
         this.gui.builder.start();
     }
 

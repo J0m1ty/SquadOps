@@ -1,4 +1,4 @@
-import { BitmapText, Container, Graphics, Text } from "pixi.js";
+import { BitmapText, Container, Graphics, Sprite, Text } from "pixi.js";
 import { DynamicComponent } from "../basic/component";
 import { Game } from "./game";
 

@@ -3,7 +3,7 @@ import { Game } from "../main/game";
 import { UIComponent } from "./uiComponent";
 import { UIBuilder } from "./uiBuilder";
 import { map } from "../util/math";
-import { InteractionMode } from "../basic/types";
+import { InteractionMode } from "../input/types";
 import { Graphics } from "pixi.js";
 
 export class UIManager implements DynamicComponent {

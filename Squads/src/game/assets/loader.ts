@@ -2,7 +2,7 @@ import { Graphics, Texture } from "pixi.js";
 import { Component } from "../basic/component";
 import { Game } from "../main/game";
 
-export type Asset = { name: string, generator: () => Promise<Graphics> };
+export type RawAsset<T extends string> = { name: T, generator: () => Promise<Graphics> };
 
 export class Loader implements Component {
     game: Game;
@@ -13,7 +13,7 @@ export class Loader implements Component {
         this.game = game;
     }
 
-    async load(assets: Asset[], onUpdate?: (text: string) => void, onProgress?: (value: number) => void, onComplete?: () => void) {
+    async load<T extends string>(assets: RawAsset<T>[], onUpdate?: (text: string) => void, onProgress?: (value: number) => void, onComplete?: () => void) {
         if (assets.length === 0) {
             onProgress?.(1);
             onComplete?.();
@@ -37,7 +37,7 @@ export class Loader implements Component {
         onComplete?.();
     }
 
-    async create(asset: Asset) {
+    async create<T extends string>(asset: RawAsset<T>) {
         if (this.assets.has(asset.name)) return;
 
         const graphics = await asset.generator();
