@@ -1,51 +1,47 @@
 import { Sprite } from 'pixi.js';
+import { AssetName } from '../assets/builder';
 import { Asset, Equippable } from '../basic/equippable';
-import { DuelHandAnimation, Item } from './types';
 import { Game } from '../main/game';
+import { DuelHandAnimation, Item } from './types';
 
-export class Gun<T extends string> implements Equippable {
-    type: Item = "gun";
+export class Melee<T extends string> implements Equippable {
+    type: Item = "melee";
     name: T;
-    asset: Asset;
+    asset: Asset | null;
     idle: DuelHandAnimation;
     sprite?: Sprite;
     
-    constructor(name: T, asset: Asset, idle: DuelHandAnimation) {
+    constructor(name: T, asset: Asset | null, idle: DuelHandAnimation) {
         this.name = name;
         this.asset = asset;
         this.idle = idle;
     }
 
-    getSprite = (game: Game) => {
+    getSprite = (game: Game)  => {
+        if (!this.asset) return null;
+        
         if (!this.sprite) this.sprite = new Sprite(game.loader.getAsset(this.asset.name));
-
         return this.sprite;
     }
 }
 
-export type GunName = "ak47";
+export type GunName = "fists";
 
-export const guns: {
-    [key in GunName]: Gun<key>
+export const melee: {
+    [key in GunName]: Melee<key>
 } = {
-    ak47: new Gun("ak47", { 
-        name: "gun_long",
-        offset: { x: 33, y: 0 },
-        rotation: - Math.PI / 2,
-        tint: 0x8b4513,
-        anchor: { x: 0.5, y: 0 }
-    }, { 
+    fists: new Melee("fists", null, { 
         left: {
             side: "left",
-            vertical: "below",
-            target: { x: 103, y: -30 },
+            vertical: "above",
+            target: { x: 35, y: 0 },
             start: 0,
             duration: 250
         },
         right: {
             side: "right",
             vertical: "above",
-            target: { x: 43, y: -33 },
+            target: { x: 35, y: 0 },
             start: 0,
             duration: 250
         }

@@ -10,7 +10,7 @@ export const RawAssets: RawAsset<AssetName>[] = [
             const graphic = new Graphics();
             graphic.lineStyle(2, 0x4b4b4b);
             graphic.beginFill(0xfdfdfd);
-            graphic.drawRoundedRect(0, 0, 10, 122, 30);
+            graphic.drawRoundedRect(0, 0, 13, 132, 30);
             graphic.endFill();
             return graphic;
         }

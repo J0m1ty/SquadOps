@@ -73,6 +73,7 @@ export class Game {
         this.app.ticker.start();
         this.test.start();
         this.gui.builder.start();
+        this.playerManager.start();
     }
 
     update(delta: number) {
