@@ -1,21 +1,12 @@
 import { Sprite } from "pixi.js";
-import { AssetName } from "../assets/builder";
-import { DuelHandAnimation, Item } from "../items/types";
 import { Game } from "../main/game";
+import { DualHandPosition } from "./animation";
 
-export type Asset = {
-    name: AssetName;
-    offset?: { x: number, y: number };
-    rotation?: number;
-    tint?: number;
-    anchor?: { x: number, y: number };
-};
+export type Item = 'melee' | 'gun' | 'grenade';
 
 export interface Equippable {
     type: Item;
-    name: string;
-    idle: DuelHandAnimation;
-    asset: Asset | null;
+    idle: DualHandPosition;
     sprite?: Sprite;
     
     getSprite: (game: Game) => Sprite | null;

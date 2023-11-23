@@ -1,25 +1,29 @@
-import { Graphics, Texture } from "pixi.js";
+import { Texture } from "pixi.js";
 import { Component } from "../basic/component";
-import { Game } from "../main/game";
+import { Game } from "./game";
+import { AssetKey, GameAsset } from "../resources/assets";
 
-export type RawAsset<T extends string> = { name: T, generator: () => Promise<Graphics> };
+export type Loader = {
+    load: GameAsset[];
+    onUpdate?: (text: string) => void;
+    onProgress?: (value: number) => void;
+    onComplete?: () => void;
+};
 
-export class Loader implements Component {
+export class AssetLoader implements Component {
     game: Game;
 
     assets: Map<string, Texture> = new Map();
 
-    constructor(game: Game, ) {
+    constructor(game: Game) {
         this.game = game;
     }
 
-    async load<T extends string>(assets: RawAsset<T>[], onUpdate?: (text: string) => void, onProgress?: (value: number) => void, onComplete?: () => void) {
+    async load({ load: assets, onUpdate, onProgress, onComplete }: Loader) {
         if (assets.length === 0) {
             onProgress?.(1);
-            onComplete?.();
-            return;
         }
-    
+        
         for (const [index, asset] of assets.entries()) {
             try {
                 onUpdate?.(`Loading asset: ${asset.name}`);
@@ -29,15 +33,15 @@ export class Loader implements Component {
                 console.error(`Error loading asset: ${asset.name}`, error);
             }
         }
-
+        
         onUpdate?.(`Done loading assets!`);
 
         await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
         onComplete?.();
     }
 
-    async create<T extends string>(asset: RawAsset<T>) {
+    async create(asset: GameAsset) {
         if (this.assets.has(asset.name)) return;
 
         const graphics = await asset.generator();
@@ -53,7 +57,7 @@ export class Loader implements Component {
         this.assets.set(asset.name, texture);
     }
 
-    getAsset<T extends string>(name: T) {
+    getAsset<T extends AssetKey>(name: T): Texture {
         return this.assets.get(name) ?? Texture.WHITE;
     }
 }

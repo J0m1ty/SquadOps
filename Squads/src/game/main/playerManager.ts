@@ -1,8 +1,8 @@
 import { DynamicComponent } from "../basic/component";
 import { Agent } from "../basic/agent";
 import { Game } from "./game";
-import { guns } from "../items/gun";
-import { melee } from "../items/melee";
+import { guns } from "../resources/gun";
+import { melees } from "../resources/melee";
 
 export class PlayerManager implements DynamicComponent {
     game: Game;
@@ -15,9 +15,7 @@ export class PlayerManager implements DynamicComponent {
         this.game = game;
 
         this.agent = new Agent(game);
-    }
 
-    start() {
         this.agent.equip(guns.ak47);
     }
 

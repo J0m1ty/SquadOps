@@ -1,10 +1,18 @@
 import { Graphics } from "pixi.js";
-import { RawAsset } from "./loader";
 
-export type AssetName = 'gun_long' | 'gun_short';
+export type AssetKey = 'gun_long' | 'gun_short';
 
-export const RawAssets: RawAsset<AssetName>[] = [
-    {
+export type Asset<T extends string> = {
+    name: T,
+    generator: () => Promise<Graphics>
+};
+
+export type GameAsset = Asset<AssetKey>;
+
+export const Assets: {
+    [key in AssetKey]: Asset<key>;
+} = {
+    gun_long: {
         name: 'gun_long',
         generator: async () => {
             const graphic = new Graphics();
@@ -15,7 +23,7 @@ export const RawAssets: RawAsset<AssetName>[] = [
             return graphic;
         }
     },
-    {
+    gun_short: {
         name: 'gun_short',
         generator: async () => {
             const graphic = new Graphics();
@@ -26,4 +34,6 @@ export const RawAssets: RawAsset<AssetName>[] = [
             return graphic;
         }
     }
-];
+};
+
+export const AssetList: GameAsset[] = Object.values(Assets);

@@ -1,5 +1,4 @@
 import { BitmapText, Container, Graphics, Sprite } from "pixi.js";
-import { Component } from "../basic/component";
 import { UIComponent } from "./uiComponent";
 import { UIManager } from "./uiManager";
 import { map } from "../util/math";

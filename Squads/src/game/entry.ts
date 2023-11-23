@@ -1,7 +1,7 @@
-import { RawAssets } from './assets/builder';
 import { app } from './core/app';
 import { engine } from './core/engine';
 import { Game } from './main/game';
+import { AssetList } from './resources/assets';
 
 (() => {
     const entry = document.getElementById('entry');
@@ -16,14 +16,17 @@ import { Game } from './main/game';
     app.resizeTo = entry.parentElement!;
     entry.appendChild(app.view);
     
-    const game = new Game(app, engine);
-
-    game.loader.load(RawAssets, (update) => {
-        progressText.innerText = update;
-    }, (value) => {
-        progress.style.width = `${value * 100}%`;
-    }, () => {
-        load.style.display = 'none';
-        game.start();
+    const game = new Game(app, engine, {
+        load: AssetList,
+        onUpdate: (update) => {
+            progressText.innerText = update;
+        },
+        onProgress: (value) => {
+            progress.style.width = `${value * 100}%`;
+        },
+        onComplete: () => {
+            load.style.display = 'none';
+            game.start();
+        }
     });
 })();

@@ -1,11 +1,12 @@
 import { Bodies } from "matter-js";
 import { GameObject } from "./gameObject";
 import { Game } from "../main/game";
-import { Hand, HandAnimation, Vertical } from "../items/types";
-import { Container, Graphics, Point } from "pixi.js";
-import { angleBetween, angleTo, map, smoothstep } from "../util/math";
-import { Gun } from "../items/gun";
+import { Hand, Vertical, HandPosition, Animation } from "./animation";
+import { Container, Graphics } from "pixi.js";
+import { angleBetween, angleTo } from "../util/math";
 import { Equippable } from "./equippable";
+import { GameGun, Gun } from "../resources/gun";
+import { GameMelee, Melee } from "../resources/melee";
 
 export class Agent extends GameObject {
     protected _rotation: number = 0;
@@ -17,15 +18,13 @@ export class Agent extends GameObject {
         below: new Container(),
         above: new Container()
     };
-    item: Container = new Container();
+    holding: Container = new Container();
     hands: Record<Hand, Graphics> = {
         left: new Graphics(),
         right: new Graphics()
     };
 
     equipped: Equippable | null = null;
-
-    animations: HandAnimation[] = [];
 
     get size() {
         return this.body.circleRadius ?? 0;
@@ -48,7 +47,7 @@ export class Agent extends GameObject {
         this.container.addChild(this.center);
         
         this.container.addChild(this.level.below);
-        this.container.addChild(this.item);
+        this.container.addChild(this.holding);
         this.container.addChild(this.level.above);
 
         this.hands.left.lineStyle({ width: 3, color: 0x000000, alignment: 0.5 });
@@ -62,56 +61,31 @@ export class Agent extends GameObject {
         this.hands.right.endFill();
     }
 
-    equip = (item: Equippable | null) => {
+    equip = (item: GameGun | GameMelee) => {
+        this.holding.removeChildren();
+
         this.equipped = item;
 
-        this.item.removeChildren();
+        const sprite = item.getSprite(this.game);
+        
+        if (sprite) {
+            this.holding.addChild(sprite);
 
-        if (item) {
-            this.animate(item.idle.left);
-            this.animate(item.idle.right);
-            
-            const sprite = item.getSprite(this.game);
-
-            if (sprite) {
-                this.item.addChild(sprite);
-                sprite.position.x = item.asset?.offset?.x ?? 0;
-                sprite.position.y = item.asset?.offset?.y ?? 0;
-                sprite.rotation = item.asset?.rotation ?? 0;
-                sprite.tint = item.asset?.tint ?? 0xffffff;
-                sprite.anchor.x = item.asset?.anchor?.x ?? 0;
-                sprite.anchor.y = item.asset?.anchor?.y ?? 0;
+            if (item instanceof Gun) {
+                sprite.position.x = item.data.offset.x;
+                sprite.position.y = item.data.offset.y;
+                sprite.rotation = item.data.rotation;
+                sprite.tint = item.data.tint;
+                sprite.anchor.x = item.data.anchor.x;
+                sprite.anchor.y = item.data.anchor.y;
             }
         }
-        else {
-            this.animations = [];
-        }
-    }
 
-    // punch = (side: Hand) => {
-    //     if (this.equipped != null) return;
+        this.hands.left.removeFromParent();
+        this.level[item.idle.left.vertical].addChild(this.hands.left);
 
-    //     this.animate({
-    //         side,
-    //         vertical: "above",
-    //         target: new Point(35, -20),
-    //         start: this.game.app.ticker.lastTime,
-    //         duration: 250,
-    //         next: "back"
-    //     });
-    // }
-
-    animate = (animation: HandAnimation) => {
-        this.animations = this.animations.filter(a => a.side !== animation.side);
-        this.animations.push(animation);
-
-        const hand = this.hands[animation.side];
-        hand.removeFromParent();
-        this.level[animation.vertical].addChild(hand);
-    }
-
-    getHand = (side: Hand) => {
-        return side == 'left' ? { sign: -1, hand: this.hands.left } : { sign: 1, hand: this.hands.right };
+        this.hands.right.removeFromParent();
+        this.level[item.idle.right.vertical].addChild(this.hands.right);
     }
 
     update(delta: number) {
@@ -130,32 +104,11 @@ export class Agent extends GameObject {
 
         this.container.rotation = this._rotation;
 
-        for (let i = 0; i < this.animations.length; i++) {
-            const anim = this.animations[i];
-            const { hand, sign } = this.getHand(anim.side);
-            const target = new Point(anim.target.x, anim.target.y * sign)
-            const total = target.add({ x: 0, y: this.size * 2/3 * sign });
+        this.hands.left.position.x = this.equipped?.idle.left.position.x ?? 0;
+        this.hands.left.position.y = this.equipped?.idle.left.position.y ?? 0;
 
-            const elapsed = Math.max(0, Math.min(this.game.app.ticker.lastTime - anim.start, anim.duration));
-            
-            hand.position.x = map(smoothstep(0, anim.duration, elapsed), 0, 1, hand.position.x, total.x);
-            hand.position.y = map(smoothstep(0, anim.duration, elapsed), 0, 1, hand.position.y, total.y);
-            
-            if (Math.abs(hand.position.x - total.x) < 0.5 && Math.abs(hand.position.x - total.x) < 0.5) {
-                if (anim.next == "back") {
-                    anim.start = this.game.app.ticker.lastTime;
-                    anim.target = new Point(0, 0);
-                    delete anim.next;
-                }
-                else if (anim.next) {
-                    this.animations[i] = anim.next;
-                }
-                else {
-                    this.animations.splice(i, 1);
-                    i--;
-                }
-            }
-        }
+        this.hands.right.position.x = this.equipped?.idle.right.position.x ?? 0;
+        this.hands.right.position.y = this.equipped?.idle.right.position.y ?? 0;
 
         super.update(delta);
     }

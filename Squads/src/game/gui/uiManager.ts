@@ -3,8 +3,9 @@ import { Game } from "../main/game";
 import { UIComponent } from "./uiComponent";
 import { UIBuilder } from "./uiBuilder";
 import { map } from "../util/math";
-import { InteractionMode } from "../input/types";
 import { Graphics } from "pixi.js";
+
+export type InteractionMode = 'hold' | 'toggle';
 
 export class UIManager implements DynamicComponent {
     game: Game;

@@ -2,7 +2,6 @@ import { Application, Container } from 'pixi.js';
 import { Engine } from 'matter-js';
 import { InputManager } from '../input/inputManager';
 import { GameObject } from '../basic/gameObject';
-import { Layer } from '../basic/types';
 import { Grid } from './grid';
 import { PlayerManager } from './playerManager';
 import { TrackingCamera } from './trackingCamera';
@@ -10,23 +9,28 @@ import { Debug } from './debug';
 import { Fonts } from '../basic/fonts';
 import { UIManager } from '../gui/uiManager';
 import { Test } from './test';
-import { RawAsset, Loader } from '../assets/loader';
+import { AssetLoader, Loader } from './loader';
+
+export type Layer = 'background' | 'surface' | 'player' | 'ui' | 'debug';
 
 export class Game {
     app: Application;
     engine: Engine;
     
-    // Components
-    loader: Loader;
+    // Initialization components
+    loader: AssetLoader;
     fonts: Fonts;
-    debug: Debug;
-    input: InputManager;
-    playerManager: PlayerManager;
-    camera: TrackingCamera<GameObject>;
-    gui: UIManager;
-    grid: Grid;
-    test: Test;
+
+    // Game components
+    debug!: Debug;
+    input!: InputManager;
+    playerManager!: PlayerManager;
+    camera!: TrackingCamera<GameObject>;
+    gui!: UIManager;
+    grid!: Grid;
+    test!: Test;
     
+    // Layers
     layers: Record<Layer, Container> = {
         background: new Container(),
         surface: new Container(),
@@ -35,6 +39,11 @@ export class Game {
         debug: new Container()
     };
 
+    // Game state
+    loaded: boolean = false;
+    started: boolean = false;
+
+    // Window
     lastWidth: number = -1;
     lastHeight: number = -1;
 
@@ -46,18 +55,28 @@ export class Game {
         return this.app.view.height;
     }
     
-    constructor(app: Application, engine: Engine, ) {
+    constructor(app: Application, engine: Engine, {load, onUpdate, onProgress, onComplete}: Loader) {
         this.app = app;
         this.engine = engine;
+        
+        this.fonts = new Fonts(this);
+        this.loader = new AssetLoader(this);
 
+        this.loader.load({ load, onUpdate, onProgress,
+            onComplete: () => {
+                this.initialize();
+                onComplete?.();
+            }
+        });
+    }
+
+    private initialize() {
         this.app.stage.addChild(this.layers.background);
         this.app.stage.addChild(this.layers.surface);
         this.app.stage.addChild(this.layers.player);
         this.app.stage.addChild(this.layers.ui);
         this.app.stage.addChild(this.layers.debug);
         
-        this.loader = new Loader(this);
-        this.fonts = new Fonts(this);
         this.debug = new Debug(this);
         this.input = new InputManager(this);
         this.playerManager = new PlayerManager(this);
@@ -67,16 +86,22 @@ export class Game {
         this.test = new Test(this);
 
         this.app.ticker.add(this.update.bind(this));
+
+        this.loaded = true;
     }
     
     start() {
-        this.app.ticker.start();
+        if (!this.loaded) throw new Error(`Cannot start game before loading assets!`);
+
         this.test.start();
+
         this.gui.builder.start();
-        this.playerManager.start();
+        this.app.ticker.start();
+
+        this.started = true;
     }
 
-    update(delta: number) {
+    private update(delta: number) {
         if (this.lastWidth != this.width || this.lastHeight != this.height) {
             this.resize();
         }
@@ -101,13 +126,13 @@ export class Game {
         this.reset();
     }
 
-    resize() {
+    private resize() {
         this.gui.resize();
         this.camera.resize();
         this.grid.resize();
     }
 
-    reset() {
+    private reset() {
         this.input.reset();
         this.debug.reset();
     }

@@ -1,6 +1,8 @@
 import { Container } from "pixi.js";
-import { Anchor, Dimention } from "./types";
 import { UIManager } from "./uiManager";
+
+export type Anchor = { w: number, h: number };
+export type Dimention = number | `${number}%`;
 
 export class UIComponent {
     manager: UIManager;
