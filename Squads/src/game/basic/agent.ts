@@ -1,18 +1,13 @@
 import { Bodies } from "matter-js";
 import { GameObject } from "./gameObject";
 import { Game } from "../main/game";
-import { Animation, GameAnimation, HandPosition, HandType, Vertical } from "./animation";
 import { Container, Graphics } from "pixi.js";
-import { angleBetween, angleTo, lerp, map } from "../util/math";
-import { Equippable } from "./equippable";
-import { GameGun, Gun } from "../weapons/gun";
-import { GameMelee, Melee } from "../weapons/melee";
-import { actions } from "../weapons/actions";
+import { angleBetween, angleTo, lerp } from "../util/math";
 import { Hand } from "./hand";
-
-export type AnimationInstance = GameAnimation & {
-    start: number;
-};
+import { GameAction, GameGun, GameMelee, actions, isDualAnimation } from "../weapons/weapons";
+import { ActionInstance } from "../weapons/action";
+import { GunInstance } from "../weapons/gun";
+import { MeleeInstance } from "../weapons/melee";
 
 export class Agent extends GameObject {
     protected _rotation: number = 0;
@@ -21,16 +16,19 @@ export class Agent extends GameObject {
 
     center: Graphics = new Graphics();
     handBox: Container = new Container();
-    level: Record<Vertical, Container> = {
+    level = {
         below: new Container(),
         above: new Container()
     };
     holding: Container = new Container();
-    hand: Record<HandType, Hand>;
+    hand: {
+        left: Hand,
+        right: Hand
+    };
 
-    equipped: Equippable | null = null;
+    equipped?: GunInstance | MeleeInstance;
 
-    animations: AnimationInstance[] = [];
+    actions: ActionInstance[] = [];
 
     get size() {
         return this.body.circleRadius ?? 0;
@@ -64,95 +62,96 @@ export class Agent extends GameObject {
     }
 
     equip = (item: GameGun | GameMelee) => {
-        this.animations = [];
-        this.equipped?.sprite?.removeFromParent();
-        this.equipped?.dual?.removeFromParent();
+        // this.animations = [];
+        // this.equipped?.sprite?.removeFromParent();
+        // this.equipped?.dual?.removeFromParent();
 
-        this.equipped = item;
+        // this.equipped = item;
 
-        const sprite = item.getSprite(this.game);
+        // const sprite = item.getSprite(this.game);
         
-        if (sprite) {
-            switch (item.hand) {
-                case "left":
-                    this.hand.left.holding[item.idle.left?.vertical ?? "above"].addChild(sprite);
-                    break;
-                case "right":
-                    this.hand.right.holding[item.idle.right?.vertical ?? "above"].addChild(sprite);
-                    break;
-                case "dual":
-                    const dual = item.getDualSprite(this.game);
+        // if (sprite) {
+        //     switch (item.hand) {
+        //         case "left":
+        //             this.hand.left.holding[item.idle.left?.vertical ?? "above"].addChild(sprite);
+        //             break;
+        //         case "right":
+        //             this.hand.right.holding[item.idle.right?.vertical ?? "above"].addChild(sprite);
+        //             break;
+        //         case "dual":
+        //             const dual = item.getDualSprite(this.game);
 
-                    if (dual) {
-                        this.hand.left.holding[item.idle.left?.vertical ?? "above"].addChild(dual);
-                        this.hand.right.holding[item.idle.right?.vertical ?? "above"].addChild(sprite);
-                    }
-                    break;
-                case "both":
-                    this.holding.addChild(sprite);
-                    break;
-            }
-        }
+        //             if (dual) {
+        //                 this.hand.left.holding[item.idle.left?.vertical ?? "above"].addChild(dual);
+        //                 this.hand.right.holding[item.idle.right?.vertical ?? "above"].addChild(sprite);
+        //             }
+        //             break;
+        //         case "both":
+        //             this.holding.addChild(sprite);
+        //             break;
+        //     }
+        // }
 
-        this.hand.left.container.removeFromParent();
-        this.level[item.idle.left?.vertical ?? "above"].addChild(this.hand.left.container);
-        this.hand.left.container.visible = item.idle.left != null;
+        // this.hand.left.container.removeFromParent();
+        // this.level[item.idle.left?.vertical ?? "above"].addChild(this.hand.left.container);
+        // this.hand.left.container.visible = item.idle.left != null;
 
-        this.hand.right.container.removeFromParent();
-        this.level[item.idle.right?.vertical ?? "above"].addChild(this.hand.right.container);
-        this.hand.right.container.visible = item.idle.right != null;
+        // this.hand.right.container.removeFromParent();
+        // this.level[item.idle.right?.vertical ?? "above"].addChild(this.hand.right.container);
+        // this.hand.right.container.visible = item.idle.right != null;
     }
 
-    animate = (animation: GameAnimation) => {
-        this.animations.push({
-            ...animation,
-            start: this.game.app.ticker.lastTime
-        });
+    action = (action: GameAction) => {
+        this.actions.push(new ActionInstance(action, this.game.app.ticker.lastTime));
     }
 
     fire = (): number | null => {
-        if (this.equipped == null || !(this.equipped instanceof Gun)) return null;
+        // if (this.equipped == null || !(this.equipped instanceof Gun)) return null;
         
-        const recoil = this.equipped.recoil;
+        // const recoil = this.equipped.recoil;
 
-        switch (this.equipped.hand) {
-            case "both":
+        // switch (this.equipped.hand) {
+        //     case "both":
 
-                const x = lerp(this.handBox.position.x, - recoil.x, 0.5);
-                const y = lerp(this.handBox.position.y, recoil.y * (Math.round(Math.random()) * 2 - 1), 0.8);
+        //         const x = lerp(this.handBox.position.x, - recoil.x, 0.5);
+        //         const y = lerp(this.handBox.position.y, recoil.y * (Math.round(Math.random()) * 2 - 1), 0.8);
 
-                this.handBox.position.set(x, y);
-                break;
-            case "dual":
-                const hands = [this.equipped.idle.left, this.equipped.idle.right].filter((a): a is (HandPosition<"left"> | HandPosition<"right">) => a != null);
-                if (hands.length == 0) return null;
+        //         this.handBox.position.set(x, y);
+        //         break;
+        //     case "dual":
+        //         const hands = [this.equipped.idle.left, this.equipped.idle.right].filter((a): a is (HandPosition<"left"> | HandPosition<"right">) => a != null);
+        //         if (hands.length == 0) return null;
 
-                const hand = hands[Math.floor(Math.random() * hands.length)];
+        //         const hand = hands[Math.floor(Math.random() * hands.length)];
 
-                const x1 = lerp(0, - recoil.x, 0.5);
-                const y1 = lerp(0, recoil.y * (Math.round(Math.random()) * 2 - 1), 0.8);
+        //         const x1 = lerp(0, - recoil.x, 0.5);
+        //         const y1 = lerp(0, recoil.y * (Math.round(Math.random()) * 2 - 1), 0.8);
 
-                this.hand[hand.side].container.position.set(hand.position.x + x1, hand.position.y + y1);
+        //         this.hand[hand.side].container.position.set(hand.position.x + x1, hand.position.y + y1);
 
                 
-                break;
-        }
+        //         break;
+        // }
 
-        return 150;
+        // return 150;
+        return null;
     }
 
-    melee = (): number | null => {
-        if (this.equipped == null || !(this.equipped instanceof Melee)) return null;
-        
-        const info = this.equipped.actions[Math.floor(Math.random() * this.equipped.actions.length)];
-        if (!info) return null;
+    melee = () => {
+        if (this.equipped == null || !(this.equipped instanceof MeleeInstance)) return;
 
-        const action = actions[info.action];
+        const action: GameAction = Object.values(actions)[this.equipped.getAction()];
 
-        const animations = ("dual" in action) ? [action.left, action.right].filter((a): a is (Animation<"left"> | Animation<"right">) => a != null) : [action];
-        this.animate(animations[Math.floor(Math.random() * animations.length)]);
+        this.action(action);
 
-        return info.cooldown;
+        return action.data.cooldown;
+    }
+
+    animate = () => {
+        const update = { left: false, right: false, holding: false };
+
+
+        return update;
     }
 
     update(delta: number) {
@@ -170,63 +169,19 @@ export class Agent extends GameObject {
         }
 
         this.container.rotation = this._rotation;
-
-        let update = { left: false, right: false, holding: false };
-
-        if (this.equipped instanceof Melee) {
-            let append: GameAnimation[] = [];
-            for (const animation of this.animations) {
-                const elapsed = this.game.app.ticker.lastTime - animation.start;
-                const destroy = elapsed >= animation.duration, end = !animation.next && destroy;
-
-                const origin = 'side' in animation ? (this.equipped?.idle[animation.side]?.position ?? { x: 0, y: 0 }) : { x: 0, y: 0 };
-
-                const { x, y, r } = animation.curve(animation.easing(elapsed / animation.duration), origin);
-
-                if ('side' in animation) {
-                    update[animation.side] = true;
-                    this.hand[animation.side].container.position.set(x, y); 
-
-                    if ('pivot' in animation && animation.pivot == "body" && !end) {
-                        this.hand[animation.side].container.position.set(x - origin.x, y - origin.y);
-
-                        this.hand[animation.side].container.pivot.set(- origin.x, - origin.y);
-                    }
-                    else {
-                        this.hand[animation.side].container.pivot.set(0, 0);
-                    }
-
-                    if (!end) this.hand[animation.side].container.rotation = r ?? 0;
-                } else {
-                    update = { left: true, right: true, holding: true };
-                    this.handBox.position.set(x, y);
-                    this.handBox.rotation = r ?? 0;
-                }
-
-                if (destroy) {
-                    this.animations.splice(this.animations.indexOf(animation), 1);
-
-                    if (animation.next != null) {
-                        append.push(animation.next);
-                    }
-                }
-            }
-
-            for (const animation of append) {
-                this.animate(animation);
-            }
-        }
+        
+        const update = this.animate();
 
         if (!update.left) {
-            this.hand.left.container.position.x = lerp(this.hand.left.container.position.x, this.equipped?.idle.left?.position.x ?? 0, 1 - Math.pow(0.5, delta / 1.5));
-            this.hand.left.container.position.y = lerp(this.hand.left.container.position.y, this.equipped?.idle.left?.position.y ?? 0, 1 - Math.pow(0.5, delta / 1.5));
+            this.hand.left.container.position.x = lerp(this.hand.left.container.position.x, this.equipped?.info.idle.left?.position.x ?? 0, 1 - Math.pow(0.5, delta / 1.5));
+            this.hand.left.container.position.y = lerp(this.hand.left.container.position.y, this.equipped?.info.idle.left?.position.y ?? 0, 1 - Math.pow(0.5, delta / 1.5));
             this.hand.left.container.pivot.set(0, 0);
             this.hand.left.container.rotation = 0;
         }
         
         if (!update.right) {
-            this.hand.right.container.position.x = lerp(this.hand.right.container.position.x, this.equipped?.idle.right?.position.x ?? 0, 1 - Math.pow(0.5, delta / 1.5));
-            this.hand.right.container.position.y = lerp(this.hand.right.container.position.y, this.equipped?.idle.right?.position.y ?? 0, 1 - Math.pow(0.5, delta / 1.5));
+            this.hand.right.container.position.x = lerp(this.hand.right.container.position.x, this.equipped?.info.idle.right?.position.x ?? 0, 1 - Math.pow(0.5, delta / 1.5));
+            this.hand.right.container.position.y = lerp(this.hand.right.container.position.y, this.equipped?.info.idle.right?.position.y ?? 0, 1 - Math.pow(0.5, delta / 1.5));
             this.hand.right.container.pivot.set(0, 0);
             this.hand.right.container.rotation = 0;
         }

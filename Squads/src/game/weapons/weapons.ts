@@ -2,8 +2,6 @@ import { AssetKey } from "../basic/assets";
 import { smoothstep } from "../util/curves";
 import { lerp } from "../util/math";
 
-export type Vertical = "above" | "below";
-
 export type GunType = "pistol" | "smg" | "rifle" | "sniper" | "shotgun" | "lmg" | "dmr";
 export type GunKey<T extends GunType> = T extends "pistol" ? "m9" : T extends "rifle" ? "ak47" : never;
 
@@ -14,7 +12,7 @@ export type MeleeType = WeildingType | "none";
 export type MeleeKey<T extends MeleeType | "none"> = T extends "none" ? "fists" : T extends "single" ? "karambit" | "bayonet" : T extends "dual" ? "sledgehammer" : never;
 
 export type HandPosition = {
-    vertical: Vertical;
+    vertical: "above" | "below";
     position: { x: number, y: number };
 }
 
@@ -47,18 +45,27 @@ export type DualAnimation = {
     right: HandAnimation | null;
 }
 
+export const isDualAnimation = (animation: Animation | DualAnimation): animation is DualAnimation => {
+    return 'left' in animation && 'right' in animation;
+}
+
 export type Action<T extends WeildingType> = {
     name: ActionKey<T>;
+    data: {
+        cooldown: number;
+    }
 } & (T extends "single" ? {
     animation: DualAnimation;
 } : {
     animation: Animation;
 });
 
+export type GameAction = Action<WeildingType>;
+
 export type Gun<T extends GunType> = {
     name: GunKey<T>;
-    asset: AssetData;
     idle: HandPositions;
+    asset: AssetData;
     data: {
         tint: number;
         recoil: { x: number, y: number };
@@ -68,16 +75,17 @@ export type Gun<T extends GunType> = {
     dual: boolean;
 } : {});
 
+export type GameGun = Gun<GunType>;
+
 export type Melee<T extends MeleeType> = {
     name: MeleeKey<T>;
     idle: HandPositions;
     actions: Set<ActionKey<T extends WeildingType ? T : "single">>; 
-    data: {
-        cooldown: number;
-    }
 } & (T extends "none" ? {} : {
     asset: AssetData;
 });
+
+export type GameMelee = Melee<MeleeType>;
 
 export const guns: {
     [type in GunType]: {

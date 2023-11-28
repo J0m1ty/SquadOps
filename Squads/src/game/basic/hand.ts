@@ -1,12 +1,11 @@
 import { Container, Graphics } from "pixi.js";
 import { Agent } from "./agent";
-import { Vertical } from "./animation";
 
 export class Hand {
     agent: Agent;
 
     container: Container = new Container();
-    holding: Record<Vertical, Container> = {
+    holding = {
         below: new Container(),
         above: new Container()
     };
