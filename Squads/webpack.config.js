@@ -8,7 +8,7 @@ module.exports = {
         rules: [
             {
                 test: /\.ts$/,
-                use: 'ts-loader',
+                use: 'ts-loader'
             },
         ],
     },

@@ -1,35 +1,28 @@
-export type Hand = 'left' | 'right';
+export type HandType = 'left' | 'right';
+
 export type Vertical = 'above' | 'below';
 
-export type HandPosition<T extends string = Hand> = {
+export type MeleeHolding = HandType | 'both';
+export type GunHolding = 'both' | 'dual';
+export type Holding = MeleeHolding | GunHolding;
+
+export type HandPosition<T extends string = HandType> = {
     side: T;
     vertical: Vertical;
-    position: { x: number, y: number }
+    position: { x: number, y: number };
 }
 
-type Anim<T extends string = Hand> = {
-    side: T;
-    start: number;
+export type Animation<T extends HandType | 'none'> = {
     duration: number;
     easing: (t: number) => number;
-}
-
-export type LinearAnimation<T extends string = Hand> = Anim<T> & {
-    type: 'linear';
-    target: { x: number, y: number };
-}
-
-export type CircularAnimation<T extends string = Hand> = Anim<T> & {
-    type: 'circular';
-    center: { x: number, y: number };
-    radius: number;
-    angle: number;
-    clockwise: boolean;
-}
-
-export type Animation<T extends string = Hand> = (LinearAnimation<T> | CircularAnimation<T>) & {
+    curve: (t: number, origin: { x: number, y: number }) => { x: number, y: number, r?: number };
     next?: Animation<T>;
-}
+} & (T extends 'none' ? {} : { 
+    pivot?: "hand" | "body";
+    side: T;
+});
+
+export type GameAnimation = Animation<HandType | 'none'>;
 
 export type DualHandPosition = {
     left: HandPosition<'left'>;
@@ -37,6 +30,7 @@ export type DualHandPosition = {
 }
 
 export type DualAnimation = {
-    left: Animation<'left'>;
-    right: Animation<'right'>;
+    dual: true;
+    left: Animation<'left'> | null;
+    right: Animation<'right'> | null;
 }

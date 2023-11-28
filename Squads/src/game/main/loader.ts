@@ -1,7 +1,7 @@
 import { Texture } from "pixi.js";
 import { Component } from "../basic/component";
 import { Game } from "./game";
-import { AssetKey, GameAsset } from "../resources/assets";
+import { AssetKey, GameAsset } from "../basic/assets";
 
 export type Loader = {
     load: GameAsset[];
@@ -46,7 +46,9 @@ export class AssetLoader implements Component {
 
         const graphics = await asset.generator();
         
-        const texture = this.game.app.renderer.generateTexture(graphics);
+        const texture = this.game.app.renderer.generateTexture(graphics, {
+            resolution: 2
+        });
 
         graphics.destroy({
             children: true,

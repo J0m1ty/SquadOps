@@ -13,6 +13,7 @@ export class InputManager implements DynamicComponent {
 
     mousePos: { x: number, y: number } = { x: 0, y: 0 };
 
+    down: number | null = null;
     click: boolean = false;
 
     scrollCount: number = 0;
@@ -36,13 +37,14 @@ export class InputManager implements DynamicComponent {
         this.game.app.stage.addEventListener("pointermove", (e) => {
             this.mousePos = { x: e.x, y: e.y };
         });
-
-        this.game.app.stage.addEventListener("click", (e) => {
+        
+        this.game.app.stage.addEventListener("mousedown", (e) => {
             this.click = true;
+            this.down = [0, 1, 2].find((i) => e.button == i) ?? 0;
         });
-
-        this.game.app.stage.addEventListener("rightclick", (e) => {
-            this.click = true;
+        
+        this.game.app.stage.addEventListener("mouseup", (e) => {
+            this.down = null;
         });
 
         this.mouse.scroll((deltaY) => {

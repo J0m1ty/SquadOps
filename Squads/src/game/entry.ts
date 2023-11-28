@@ -1,7 +1,7 @@
 import { app } from './core/app';
 import { engine } from './core/engine';
 import { Game } from './main/game';
-import { AssetList } from './resources/assets';
+import { AssetList } from './basic/assets';
 
 (() => {
     const entry = document.getElementById('entry');

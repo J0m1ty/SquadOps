@@ -19,8 +19,3 @@ export const angleTo = (current: number, target: number) => {
 
     return Math.abs(sin) / sin;
 }
-
-export const smoothstep = (min: number, max: number, t: number) => {
-    const x =  Math.max(0, Math.min(1, (t - min)/(max-min)));;
-    return x * x * (3 - 2 * x);
-}
