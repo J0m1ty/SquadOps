@@ -4,7 +4,7 @@ import { Game } from "../main/game";
 import { Container, Graphics } from "pixi.js";
 import { angleBetween, angleTo, lerp } from "../util/math";
 import { Hand } from "./hand";
-import { GameAction, GameGun, GameMelee, actions, isDualAnimation } from "../weapons/weapons";
+import { GameAction, actions } from "../weapons/weapons";
 import { ActionInstance } from "../weapons/action";
 import { GunInstance } from "../weapons/gun";
 import { MeleeInstance } from "../weapons/melee";
@@ -61,44 +61,39 @@ export class Agent extends GameObject {
         };
     }
 
-    equip = (item: GameGun | GameMelee) => {
-        // this.animations = [];
-        // this.equipped?.sprite?.removeFromParent();
-        // this.equipped?.dual?.removeFromParent();
-
-        // this.equipped = item;
-
-        // const sprite = item.getSprite(this.game);
+    equip = (item: GunInstance | MeleeInstance) => {
+        this.actions = [];
+        this.equipped?.reset();
         
-        // if (sprite) {
-        //     switch (item.hand) {
-        //         case "left":
-        //             this.hand.left.holding[item.idle.left?.vertical ?? "above"].addChild(sprite);
-        //             break;
-        //         case "right":
-        //             this.hand.right.holding[item.idle.right?.vertical ?? "above"].addChild(sprite);
-        //             break;
-        //         case "dual":
-        //             const dual = item.getDualSprite(this.game);
+        this.equipped = item;
+        
+        const sprite = item.getSprite(this.game);
+        
+        if (sprite) {
+            if (item.info.type == "twohanded") {
+                this.holding.addChild(sprite);
+            }
+            else if (item.info.type == "pistollike" && "dualable" in item.info && item.info.dualable && item instanceof GunInstance && item.dual) {
+                const dual = item.getDualSprite(this.game);
 
-        //             if (dual) {
-        //                 this.hand.left.holding[item.idle.left?.vertical ?? "above"].addChild(dual);
-        //                 this.hand.right.holding[item.idle.right?.vertical ?? "above"].addChild(sprite);
-        //             }
-        //             break;
-        //         case "both":
-        //             this.holding.addChild(sprite);
-        //             break;
-        //     }
-        // }
+                if (dual) {
+                    this.hand.left.holding[item.info.idle.left?.vertical ?? "above"].addChild(dual);
+                    this.hand.right.holding[item.info.idle.right?.vertical ?? "above"].addChild(sprite);
+                }
+            }
+            else if (item.info.type == "singlehanded" && "side" in item.info) {
+                const side = item.info.side;
+                this.hand[side].holding[item.info.idle[side]?.vertical ?? "above"].addChild(sprite);
+            }
+        }
 
-        // this.hand.left.container.removeFromParent();
-        // this.level[item.idle.left?.vertical ?? "above"].addChild(this.hand.left.container);
-        // this.hand.left.container.visible = item.idle.left != null;
+        this.hand.left.container.removeFromParent();
+        this.level[item.info.idle.left?.vertical ?? "above"].addChild(this.hand.left.container);
+        this.hand.left.container.visible = item.info.idle.left != null;
 
-        // this.hand.right.container.removeFromParent();
-        // this.level[item.idle.right?.vertical ?? "above"].addChild(this.hand.right.container);
-        // this.hand.right.container.visible = item.idle.right != null;
+        this.hand.right.container.removeFromParent();
+        this.level[item.info.idle.right?.vertical ?? "above"].addChild(this.hand.right.container);
+        this.hand.right.container.visible = item.info.idle.right != null;
     }
 
     action = (action: GameAction) => {
@@ -139,38 +134,62 @@ export class Agent extends GameObject {
 
     melee = () => {
         if (this.equipped == null || !(this.equipped instanceof MeleeInstance)) return;
-
-        const action: GameAction = Object.values(actions)[this.equipped.getAction()];
+        
+        const name = this.equipped.getAction();
+        const action = Object.values(actions).flatMap<GameAction>(actionType => Object.values(actionType)).find(action => action.name === name);
+        if (action == null) return;
 
         this.action(action);
 
         return action.data.cooldown;
     }
 
-    animate = () => {
+    animate = (delta: number) => {
         const update = { left: false, right: false, holding: false };
+        
+        for (const action of this.actions) {
+            for (const animation of action.animations) {
+                const elapsed = this.game.app.ticker.lastTime - animation.start;
+                const destroy = elapsed > animation.info.duration, end = !animation.info.next && destroy;
+                const origin = "side" in animation.info ? (this.equipped?.info.idle[animation.info.side]?.position ?? { x: 0, y: 0 }) : { x: 0, y: 0 };
+                const { x, y, r} = animation.info.curve(animation.info.easing(elapsed / animation.info.duration), origin);
 
+                if ("side" in animation.info) {
+                    update[animation.info.side] = true;
+                    
+                    if (animation.info.pivot == "body") {
+                        this.hand[animation.info.side].container.position.set(x - origin.x, y - origin.y);
+                        this.hand[animation.info.side].container.pivot.set(-origin.x, -origin.y);
+                    }
+                    else {
+                        this.hand[animation.info.side].container.position.set(x, y);
+                        this.hand[animation.info.side].container.pivot.set(0, 0);
+                    }
 
-        return update;
-    }
+                    if (!end) this.hand[animation.info.side].container.rotation = r ?? 0;
+                }
+                else {
+                    update.left = update.right = update.holding = true;
 
-    update(delta: number) {
-        for (let i = 0; i < this.rotationSpeed; i++) {
-            const diff = angleBetween(this._rotation, this.rotation);
+                    this.handBox.position.set(x, y);
+                    this.handBox.rotation = r ?? 0;
+                }
 
-            if (Math.abs(diff) < 0.01) {
-                this._rotation = this.rotation;
-                break;
+                if (destroy) {
+                    if (animation.info.next != null) {
+                        animation.info = animation.info.next;
+                        animation.start = this.game.app.ticker.lastTime;
+                    }
+                    else {
+                        action.animations.splice(action.animations.indexOf(animation), 1);
+                    }
+                }
             }
 
-            const modify = angleTo(this._rotation, this.rotation) * (Math.PI / 180) * delta;
-            
-            this._rotation = (modify + this._rotation) % (2 * Math.PI);
+            if (action.animations.length == 0) {
+                this.actions.splice(this.actions.indexOf(action), 1);
+            }
         }
-
-        this.container.rotation = this._rotation;
-        
-        const update = this.animate();
 
         if (!update.left) {
             this.hand.left.container.position.x = lerp(this.hand.left.container.position.x, this.equipped?.info.idle.left?.position.x ?? 0, 1 - Math.pow(0.5, delta / 1.5));
@@ -191,6 +210,25 @@ export class Agent extends GameObject {
             this.handBox.position.y = lerp(this.handBox.position.y, 0, 1 - Math.pow(0.5, delta / 1.5));
             this.handBox.rotation = 0;
         }
+    }
+
+    update(delta: number) {
+        for (let i = 0; i < this.rotationSpeed; i++) {
+            const diff = angleBetween(this._rotation, this.rotation);
+
+            if (Math.abs(diff) < 0.01) {
+                this._rotation = this.rotation;
+                break;
+            }
+
+            const modify = angleTo(this._rotation, this.rotation) * (Math.PI / 180) * delta;
+            
+            this._rotation = (modify + this._rotation) % (2 * Math.PI);
+        }
+
+        this.container.rotation = this._rotation;
+        
+        this.animate(delta);
 
         super.update(delta);
     }
