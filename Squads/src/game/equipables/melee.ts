@@ -1,23 +1,33 @@
 import { Sprite } from "pixi.js";
 import { Game } from "../main/game";
-import { ActionKey, GameMelee, cloneMelee } from "./definitions";
+import { GameAction, GameMelee, actions, cloneMelee } from "./definitions";
 import { ActionInstance } from "./action";
+import { Agent } from "../basic/agent";
 
 export class MeleeInstance {
+    agent: Agent;
     info: GameMelee;
+
+    cooldown: number = 0;
 
     private _sprite?: Sprite;
 
-    constructor(info: GameMelee) {
+    constructor(agent: Agent, info: GameMelee) {
+        this.agent = agent;
         this.info = cloneMelee(info);
     }
 
-    getAction = () => {
-        const actions: ActionKey<any>[] = [];
-        this.info.actions.forEach(action => {
-            actions.push(action);
-        });
-        return actions[Math.floor(Math.random() * actions.length)];
+    use = (): number => {
+        if (!this.agent.settled) return 0;
+
+        const name = Array.from(this.info.actions)[Math.floor(Math.random() * this.info.actions.size)];
+
+        const action = Object.values(actions).flatMap<GameAction>(actionType => Object.values(actionType)).find(action => action.name === name);
+        if (action == null) return 0;
+
+        this.agent.actions.push(new ActionInstance(this.agent, action, this.agent.game.app.ticker.lastTime));
+
+        return action.data.cooldown;
     }
 
     getSprite = (game: Game) => {
@@ -37,6 +47,14 @@ export class MeleeInstance {
         sprite.position.set(this.info.asset.offset.x, this.info.asset.offset.y);
         sprite.rotation = this.info.asset.rotation;
         return sprite;
+    }
+
+    update() {
+        if (this.agent.game.input.click && this.cooldown <= 0) {
+            this.cooldown = this.use();
+        }
+
+        this.cooldown = Math.max(0, this.cooldown - this.agent.game.app.ticker.elapsedMS);
     }
 
     reset() {

@@ -4,8 +4,8 @@ import { lerp } from "../util/math";
 
 // TYPES
 
-export type GunType = "pistollike" | "twohanded";
-export type GunKey<T extends GunType> = T extends "pistollike" ? "m9" : T extends "twohanded" ? "ak47" : never;
+export type GunType = "pistollike" | "riflelike";
+export type GunKey<T extends GunType> = T extends "pistollike" ? "m9" : T extends "riflelike" ? "ak47" : never;
 
 export type ActionType = "single" | "dual";
 export type ActionKey<T extends ActionType> = T extends "single" ? "punch_left" | "punch_right" | "slash" | "thrust" | "cut" : T extends "dual" ?  "heavy_swing" : never;
@@ -72,27 +72,27 @@ export type Action<T extends ActionType> = {
 
 export type GameAction = Action<ActionType>;
 
-export type Gun<T extends GunType> = {
-    name: GunKey<T>;
+export type Equippable<T extends GunType | MeleeType> = {
+    name: T extends GunType ? GunKey<T> : T extends MeleeType ? MeleeKey<T> : never;
     type: T;
-    classifcation: "pistol" | "smg" | "rifle" | "sniper" | "shotgun" | "lmg" | "dmr";
     idle: HandPositions;
+}
+
+export type Gun<T extends GunType> = Equippable<T> & {
+    classification: "pistol" | "smg" | "rifle" | "sniper" | "shotgun" | "lmg" | "dmr";
     asset: AssetData;
-    data: {
-        tint: number;
-        recoil: { x: number, y: number };
-        fireRate: number;
-    }
+    tint: number;
+    recoil: { x: number, y: number };
+    fireMode: { type: "auto", cooldown: number } 
+            | { type: "semi", cooldown: number } 
+            | { type: "burst", mode: "auto" | "semi", cooldown: number, burstCooldown: number, shots: number };
 } & (T extends "pistollike" ? {
     dualable: boolean;
 } : {});
 
 export type GameGun = Gun<GunType>;
 
-export type Melee<T extends MeleeType> = {
-    name: MeleeKey<T>;
-    type: T;
-    idle: HandPositions;
+export type Melee<T extends MeleeType> = Equippable<T> & {
     actions: Set<ActionKey<T extends "twohanded" ? "dual" : "single">>; 
 } & (T extends "none" ? {} : {
     asset: AssetData;
@@ -101,6 +101,20 @@ export type Melee<T extends MeleeType> = {
 } : {});
 
 export type GameMelee = Melee<MeleeType>;
+
+// DATA VERIFICATION
+
+export const isGun = (equippable: Equippable<any>): equippable is GameGun => {
+    return 'classification' in equippable;
+}
+
+export const isMelee = (equippable: Equippable<any>): equippable is GameMelee => {
+    return 'actions' in equippable;
+}
+
+export const isHandAnimation = (animation: Animation): animation is HandAnimation => {
+    return 'pivot' in animation;
+}
 
 // FACTORIES
 
@@ -154,7 +168,7 @@ export const cloneGun = (source: GameGun): GameGun => {
     const clone: GameGun = {
         name: source.name,
         type: source.type,
-        classifcation: source.classifcation,
+        classification: source.classification,
         idle: {
             left: {
                 vertical: source.idle.left.vertical,
@@ -171,11 +185,9 @@ export const cloneGun = (source: GameGun): GameGun => {
             rotation: source.asset.rotation,
             anchor: { ...source.asset.anchor }
         },
-        data: {
-            tint: source.data.tint,
-            recoil: { ...source.data.recoil },
-            fireRate: source.data.fireRate
-        },
+        tint: source.tint,
+        recoil: { ...source.recoil },
+        fireMode: { ...source.fireMode },
         ...("dualable" in source ? { dualable: source.dualable } : {})
     };
 
@@ -215,7 +227,7 @@ export const guns: {
         m9: {
             name: "m9",
             type: "pistollike",
-            classifcation: "pistol",
+            classification: "pistol",
             asset: {
                 name: "m9",
                 offset: { x: 45, y: 0 },
@@ -232,19 +244,17 @@ export const guns: {
                     position: { x: 45, y: 0 }
                 }
             },
-            data: {
-                tint: 0x222222,
-                recoil: { x: 10, y: 1 },
-                fireRate: 150
-            },
+            tint: 0x222222,
+            recoil: { x: 10, y: 1 },
+            fireMode: { type: "semi", cooldown: 150 },
             dualable: true
         },
     },
-    twohanded: {
+    riflelike: {
         ak47: {
             name: "ak47",
-            type: "twohanded",
-            classifcation: "rifle",
+            type: "riflelike",
+            classification: "rifle",
             asset: {
                 name: "gun_long",
                 offset: { x: 45, y: 0 },
@@ -261,11 +271,9 @@ export const guns: {
                     position: { x: 45, y: 0 }
                 }
             },
-            data: {
-                tint: 0x865232,
-                recoil: { x: 15, y: 2 },
-                fireRate: 160
-            }
+            tint: 0x865232,
+            recoil: { x: 15, y: 2 },
+            fireMode: { type: "auto", cooldown: 160 }
         }
     }
 }
@@ -558,7 +566,7 @@ export const melees: {
             type: "twohanded",
             asset: {
                 name: "sledgehammer",
-                offset: { x: 43, y: 20 },
+                offset: { x: 43, y: 15 },
                 rotation: - Math.PI / 16,
                 anchor: { x: 0.5, y: 0.5 }
             },
@@ -569,7 +577,7 @@ export const melees: {
                 },
                 right: {
                     vertical: "above",
-                    position: { x: 43, y: 33 }
+                    position: { x: 45, y: 33 }
                 }
             },
             actions: new Set(["heavy_swing"])

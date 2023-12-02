@@ -10,6 +10,17 @@ export const lerp = (a: number, b: number, t: number) => {
     return a + (b - a) * t;
 }
 
+export const lerpXY = (a: { x: number, y: number }, b: { x: number, y: number }, t: number) => {
+    return {
+        x: lerp(a.x, b.x, t),
+        y: lerp(a.y, b.y, t)
+    };
+}
+
+export const equalsXY = (a: { x: number, y: number }, b: { x: number, y: number }, e: number = 0.001) => {
+    return Math.abs(a.x - b.x) < e && Math.abs(a.y - b.y) < e;
+}
+
 export const angleBetween = (a: number, b: number) => {
     return Math.min((2 * Math.PI) - Math.abs(a - b), Math.abs(a - b));
 }
