@@ -8,6 +8,7 @@ import { GameAction, actions } from "../weapons/weapons";
 import { ActionInstance } from "../weapons/action";
 import { GunInstance } from "../weapons/gun";
 import { MeleeInstance } from "../weapons/melee";
+import { AnimationInstance } from "../weapons/animation";
 
 export class Agent extends GameObject {
     protected _rotation: number = 0;
@@ -73,12 +74,17 @@ export class Agent extends GameObject {
             if (item.info.type == "twohanded") {
                 this.holding.addChild(sprite);
             }
-            else if (item.info.type == "pistollike" && "dualable" in item.info && item.info.dualable && item instanceof GunInstance && item.dual) {
-                const dual = item.getDualSprite(this.game);
+            else if (item.info.type == "pistollike" && item instanceof GunInstance) {
+                if ("dualable" in item.info && item.info.dualable && item.dual) {
+                    const dual = item.getDualSprite(this.game);
 
-                if (dual) {
-                    this.hand.left.holding[item.info.idle.left?.vertical ?? "above"].addChild(dual);
-                    this.hand.right.holding[item.info.idle.right?.vertical ?? "above"].addChild(sprite);
+                    if (dual) {
+                        this.hand.left.holding[item.info.idle.left?.vertical ?? "above"].addChild(dual);
+                        this.hand.right.holding[item.info.idle.right?.vertical ?? "above"].addChild(sprite);
+                    }
+                }
+                else {
+                    this.holding.addChild(sprite);
                 }
             }
             else if (item.info.type == "singlehanded" && "side" in item.info) {
@@ -157,7 +163,7 @@ export class Agent extends GameObject {
                 if ("side" in animation.info) {
                     update[animation.info.side] = true;
                     
-                    if (animation.info.pivot == "body") {
+                    if (animation.info.pivot == "body" && !end) {
                         this.hand[animation.info.side].container.position.set(x - origin.x, y - origin.y);
                         this.hand[animation.info.side].container.pivot.set(-origin.x, -origin.y);
                     }
@@ -175,14 +181,13 @@ export class Agent extends GameObject {
                     this.handBox.rotation = r ?? 0;
                 }
 
-                if (destroy) {
-                    if (animation.info.next != null) {
-                        animation.info = animation.info.next;
-                        animation.start = this.game.app.ticker.lastTime;
-                    }
-                    else {
-                        action.animations.splice(action.animations.indexOf(animation), 1);
-                    }
+                if (destroy && animation.info.next != null) {
+                    animation.info = animation.info.next;
+                    animation.start = this.game.app.ticker.lastTime;
+                }
+
+                if (end) {
+                    action.animations.splice(action.animations.indexOf(animation), 1);
                 }
             }
 

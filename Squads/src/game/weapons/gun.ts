@@ -33,10 +33,10 @@ export class GunInstance {
     }
 
     applyTransform = (sprite: Sprite) => {
-        console.log(this.info.asset.offset.x)
         sprite.anchor.set(this.info.asset.anchor.x, this.info.asset.anchor.y);
         sprite.position.set(this.info.asset.offset.x, this.info.asset.offset.y);
         sprite.rotation = this.info.asset.rotation;
+        sprite.tint = this.info.data.tint;
         return sprite;
     }
 
