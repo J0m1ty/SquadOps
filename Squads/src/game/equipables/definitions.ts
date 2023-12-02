@@ -220,7 +220,7 @@ export const guns: {
                 name: "m9",
                 offset: { x: 45, y: 0 },
                 rotation: - Math.PI / 2,
-                anchor: { x: 0, y: 0 }
+                anchor: { x: 0.5, y: 0 }
             },
             idle: {
                 left: {
@@ -233,7 +233,7 @@ export const guns: {
                 }
             },
             data: {
-                tint: 0xffffff,
+                tint: 0x222222,
                 recoil: { x: 10, y: 1 },
                 fireRate: 150
             },

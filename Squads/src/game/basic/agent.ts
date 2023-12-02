@@ -4,11 +4,11 @@ import { Game } from "../main/game";
 import { Container, Graphics } from "pixi.js";
 import { angleBetween, angleTo, lerp } from "../util/math";
 import { Hand } from "./hand";
-import { GameAction, actions } from "../weapons/weapons";
-import { ActionInstance } from "../weapons/action";
-import { GunInstance } from "../weapons/gun";
-import { MeleeInstance } from "../weapons/melee";
-import { AnimationInstance } from "../weapons/animation";
+import { GameAction, actions } from "../equipables/definitions";
+import { ActionInstance } from "../equipables/action";
+import { GunInstance } from "../equipables/gun";
+import { MeleeInstance } from "../equipables/melee";
+import { AnimationInstance } from "../equipables/animation";
 
 export class Agent extends GameObject {
     protected _rotation: number = 0;

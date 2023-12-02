@@ -1,9 +1,9 @@
 import { DynamicComponent } from "../basic/component";
 import { Agent } from "../basic/agent";
 import { Game } from "./game";
-import { guns, melees } from "../weapons/weapons";
-import { MeleeInstance } from "../weapons/melee";
-import { GunInstance } from "../weapons/gun";
+import { guns, melees } from "../equipables/definitions";
+import { MeleeInstance } from "../equipables/melee";
+import { GunInstance } from "../equipables/gun";
 
 export class PlayerManager implements DynamicComponent {
     game: Game;

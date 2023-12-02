@@ -1,4 +1,4 @@
-import { Animation, HandAnimation, cloneAnimation, cloneHandAnimation } from "./weapons";
+import { Animation, HandAnimation, cloneAnimation, cloneHandAnimation } from "./definitions";
 
 export class AnimationInstance {
     info: HandAnimation | Animation;

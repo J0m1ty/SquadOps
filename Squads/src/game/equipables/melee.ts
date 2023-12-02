@@ -1,6 +1,6 @@
 import { Sprite } from "pixi.js";
 import { Game } from "../main/game";
-import { ActionKey, GameMelee, cloneMelee } from "./weapons";
+import { ActionKey, GameMelee, cloneMelee } from "./definitions";
 import { ActionInstance } from "./action";
 
 export class MeleeInstance {

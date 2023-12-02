@@ -1,5 +1,5 @@
 import { Sprite } from "pixi.js";
-import { GameGun, cloneGun } from "./weapons";
+import { GameGun, cloneGun } from "./definitions";
 import { Game } from "../main/game";
 
 export class GunInstance {

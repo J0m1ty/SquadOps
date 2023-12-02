@@ -1,5 +1,5 @@
 import { AnimationInstance } from "./animation";
-import { DualAnimation, GameAction, cloneAction } from "./weapons";
+import { DualAnimation, GameAction, cloneAction } from "./definitions";
 
 export class ActionInstance {
     info: GameAction;
