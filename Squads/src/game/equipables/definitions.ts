@@ -61,9 +61,7 @@ export class DualAnimation {
 export type Action<T extends ActionType> = {
     name: ActionKey<T>;
     type: T;
-    data: {
-        cooldown: number;
-    }
+    cooldown: number;
 } & (T extends "single" ? {
     animation: DualAnimation;
 } : {
@@ -150,7 +148,7 @@ export const cloneAction = (source: GameAction): GameAction => {
     const clone: GameAction = {
         name: source.name,
         type: source.type,
-        data: { ...source.data },
+        cooldown: source.cooldown,
         ...(source.animation instanceof DualAnimation ? {
             animation: new DualAnimation(
                 source.animation.left ? cloneHandAnimation(source.animation.left) : null,
@@ -224,10 +222,7 @@ export const guns: {
     }
 } = {
     pistollike: {
-        m9: {
-            name: "m9",
-            type: "pistollike",
-            classification: "pistol",
+        m9: { name: "m9", type: "pistollike", classification: "pistol",
             asset: {
                 name: "m9",
                 offset: { x: 45, y: 0 },
@@ -251,10 +246,7 @@ export const guns: {
         },
     },
     riflelike: {
-        ak47: {
-            name: "ak47",
-            type: "riflelike",
-            classification: "rifle",
+        ak47: { name: "ak47", type: "riflelike", classification: "rifle",
             asset: {
                 name: "gun_long",
                 offset: { x: 45, y: 0 },
@@ -284,207 +276,102 @@ export const actions: {
     }
 } = {
     single: {
-        punch_left: {
-            name: "punch_left",
-            type: "single",
-            data: {
-                cooldown: 325
-            },
-            animation: new DualAnimation(null, {
-                duration: 130,
-                pivot: "hand",
-                side: "right",
+        punch_left: { name: "punch_left", type: "single", cooldown: 325,
+            animation: new DualAnimation(null, { duration: 130, pivot: "hand", side: "right",
                 easing: smoothstep,
-                curve: (t, { x, y }) => {
-                    return {
-                        x: lerp(x, x + 33, t),
-                        y: lerp(y, y - 20, t)
-                    }
-                },
-                next: {
-                    duration: 195,
-                    pivot: "hand",
-                    side: "right",
+                curve: (t, { x, y }) => ({
+                    x: lerp(x, x + 33, t),
+                    y: lerp(y, y - 20, t)
+                }), next: { duration: 195, pivot: "hand", side: "right",
                     easing: smoothstep,
-                    curve: (t, { x, y }) => {
-                        return {
-                            x: lerp(x + 33, x, t),
-                            y: lerp(y - 20, y, t)
-                        }
-                    }
+                    curve: (t, { x, y }) => ({
+                        x: lerp(x + 33, x, t),
+                        y: lerp(y - 20, y, t)
+                    })
                 }
             })
         },
-        punch_right: {
-            name: "punch_right",
-            type: "single",
-            data: {
-                cooldown: 325
-            },
-            animation: new DualAnimation({
-                duration: 130,
-                pivot: "hand",
-                side: "left",
+        punch_right: { name: "punch_right", type: "single", cooldown: 325,
+            animation: new DualAnimation({ duration: 130, pivot: "hand", side: "left",
                 easing: smoothstep,
-                curve: (t, { x, y }) => {
-                    return {
-                        x: lerp(x, x + 33, t),
-                        y: lerp(y, y + 20, t)
-                    }
-                },
-                next: {
-                    duration: 195,
-                    pivot: "hand",
-                    side: "left",
+                curve: (t, { x, y }) => ({ 
+                    x: lerp(x, x + 33, t), 
+                    y: lerp(y, y + 20, t) 
+                }), next: { duration: 195, pivot: "hand", side: "left",
                     easing: smoothstep,
-                    curve: (t, {x, y }) => {
-                        return {
-                            x: lerp(x + 33, x, t),
-                            y: lerp(y + 20, y, t)
-                        }
-                    }
+                    curve: (t, {x, y }) => ({
+                        x: lerp(x + 33, x, t),
+                        y: lerp(y + 20, y, t)
+                    })
                 }
             }, null)
         },
-        slash: {
-            name: "slash",
-            type: "single",
-            data: {
-                cooldown: 325
-            },
-            animation: new DualAnimation(null, {
-                duration: 130,
-                pivot: "hand",
-                side: "right",
+        slash: { name: "slash", type: "single", cooldown: 325,
+            animation: new DualAnimation(null, { duration: 130, pivot: "hand", side: "right",
                 easing: smoothstep,
-                curve: (t, { x, y }) => {
-                    return {
-                        x: lerp(x, x + 42, t),
-                        y: lerp(y, y - 20, t),
-                        r: lerp(0, - Math.PI / 2, t)
-                    }
-                },
-                next: {
-                    duration: 195,
-                    pivot: "hand",
-                    side: "right",
+                curve: (t, { x, y }) => ({
+                    x: lerp(x, x + 42, t),
+                    y: lerp(y, y - 20, t),
+                    r: lerp(0, - Math.PI / 2, t)
+                }), next: { duration: 195, pivot: "hand", side: "right",
                     easing: smoothstep,
-                    curve: (t, { x, y }) => {
-                        return {
-                            x: lerp(x + 42, x, t),
-                            y: lerp(y - 20, y, t),
-                            r: lerp(- Math.PI / 2, 0, t)
-                        }
+                    curve: (t, { x, y }) => ({
+                        x: lerp(x + 42, x, t),
+                        y: lerp(y - 20, y, t),
+                        r: lerp(- Math.PI / 2, 0, t)
+                    })
+                }
+            })
+        },
+        cut: { name: "cut", type: "single", cooldown: 325,
+            animation: new DualAnimation(null, { duration: 32, pivot: "body", side: "right",
+                easing: smoothstep,
+                curve: (t, { x, y }) => ({
+                    x: lerp(x, x + 10, t),
+                    y: lerp(y, y - 5, t),
+                    r: lerp(0, - Math.PI / 4, t)
+                }), next: { duration: 146, pivot: "body", side: "right",
+                    easing: smoothstep,
+                    curve: (t, { x, y }) => ({
+                        x: lerp(x + 10, x - 10, t),
+                        y: lerp(y - 5, y + 10, t),
+                        r: lerp(- Math.PI / 4, Math.PI / 4, t)
+                    }), next: { duration: 178, pivot: "body", side: "right",
+                        easing: smoothstep,
+                        curve: (t, { x, y }) => ({
+                            x: lerp(x - 10, x, t),
+                            y: lerp(y + 10, y, t),
+                            r: lerp(Math.PI / 4, 0, t)
+                        })
                     }
                 }
             })
         },
-        cut: {
-            name: "cut",
-            type: "single",
-            data: {
-                cooldown: 325
-            },
-            animation: new DualAnimation(null, {
-                duration: 32,
-                pivot: "body",
-                side: "right",
+        thrust: { name: "thrust", type: "single", cooldown: 325,
+            animation: new DualAnimation(null, { duration: 32, pivot: "hand", side: "right",
                 easing: smoothstep,
-                curve: (t, { x, y }) => {
-                    return {
-                        x: lerp(x, x + 10, t),
-                        y: lerp(y, y - 5, t),
-                        r: lerp(0, - Math.PI / 4, t)
-                    };
-                },
-                next: {
-                    duration: 146,
-                    pivot: "body",
-                    side: "right",
+                curve: (t, { x, y }) => ({ x: lerp(x, x - 10, t), y }), 
+                next: { duration: 130, pivot: "hand", side: "right",
                     easing: smoothstep,
-                    curve: (t, { x, y }) => {
-                        return {
-                            x: lerp(x + 10, x - 10, t),
-                            y: lerp(y - 5, y + 10, t),
-                            r: lerp(- Math.PI / 4, Math.PI / 4, t)
-                        };
-                    },
-                    next: {
-                        duration: 178,
-                        pivot: "body",
-                        side: "right",
-                        easing: smoothstep,
-                        curve: (t, { x, y }) => {
-                            return { 
-                                x: lerp(x - 10, x, t),
-                                y: lerp(y + 10, y, t),
-                                r: lerp(Math.PI / 4, 0, t)
-                            };
-                        }
-                    }
-                }
-            })
-        },
-        thrust: {
-            name: "thrust",
-            type: "single",
-            data: {
-                cooldown: 325
-            },
-            animation: new DualAnimation(null, {
-                duration: 32,
-                pivot: "hand",
-                side: "right",
-                easing: smoothstep,
-                curve: (t, { x, y }) => {
-                    return { x: lerp(x, x - 10, t), y };
-                },
-                next: {
-                    duration: 130,
-                    pivot: "hand",
-                    side: "right",
-                    easing: smoothstep,
-                    curve: (t, { x, y }) => {
-                        return { x: lerp(x - 10, x + 37, t), y };
-                    },
-                    next: {
-                        duration: 162,
-                        pivot: "hand",
-                        side: "right",
-                        easing: smoothstep,
-                        curve: (t, { x, y }) => {
-                            return { x: lerp(x + 37, x, t), y };
-                        }
+                    curve: (t, { x, y }) => ({ x: lerp(x - 10, x + 37, t), y }),
+                    next: { duration: 162, pivot: "hand", side: "right", easing: smoothstep,
+                        curve: (t, { x, y }) => ({ x: lerp(x + 37, x, t), y })
                     }
                 }
             })
         }
     },
     dual: {
-        heavy_swing: {
-            name: "heavy_swing",
-            type: "dual",
-            data: {
-                cooldown: 500
-            },
-            animation: {
-                duration: 100,
+        heavy_swing: { name: "heavy_swing", type: "dual", cooldown: 500,
+            animation: { duration: 100,
                 easing: smoothstep,
-                curve: t => {
-                    return { x: 0, y: 0, r: lerp(0, Math.PI / 8, t) };
-                },
-                next: {
-                    duration: 200,
+                curve: t => ({ x: 0, y: 0, r: lerp(0, Math.PI / 8, t) }),
+                next: {  duration: 200,
                     easing: smoothstep,
-                    curve: t => {
-                        return { x: 0, y: 0, r: lerp(Math.PI / 8, -Math.PI / 2, t) };
-                    },
-                    next: {
-                        duration: 180,
+                    curve: t => ({ x: 0, y: 0, r: lerp(Math.PI / 8, -Math.PI / 2, t) }),
+                    next: { duration: 180,
                         easing: smoothstep,
-                        curve: t => {
-                            return { x: 0, y: 0, r: lerp(-Math.PI / 2, 0, t) };
-                        }
+                        curve: t => ({ x: 0, y: 0, r: lerp(-Math.PI / 2, 0, t) })
                     }
                 }
             }
@@ -498,9 +385,7 @@ export const melees: {
     }
 } = {
     none: {
-        fists: {
-            name: "fists",
-            type: "none",
+        fists: { name: "fists", type: "none",
             idle: {
                 left: {
                     vertical: "above",
@@ -515,10 +400,7 @@ export const melees: {
         }
     },
     singlehanded: {
-        karambit: {
-            name: "karambit",
-            type: "singlehanded",
-            side: "right",
+        karambit: { name: "karambit", type: "singlehanded", side: "right",
             asset: {
                 name: "karambit",
                 offset: { x: 13, y: 15 },
@@ -537,10 +419,7 @@ export const melees: {
             },
             actions: new Set(["punch_left", "punch_right", "slash"])
         },
-        bayonet: {
-            name: "bayonet",
-            type: "singlehanded",
-            side: "right",
+        bayonet: { name: "bayonet", type: "singlehanded", side: "right",
             asset: {
                 name: "bayonet",
                 offset: { x: 25, y: -12 },
@@ -561,9 +440,7 @@ export const melees: {
         }
     },
     twohanded: {
-        sledgehammer: {
-            name: "sledgehammer",
-            type: "twohanded",
+        sledgehammer: { name: "sledgehammer", type: "twohanded",
             asset: {
                 name: "sledgehammer",
                 offset: { x: 43, y: 15 },

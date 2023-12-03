@@ -4,6 +4,10 @@ import { Game } from "../main/game";
 import { Agent } from "../basic/agent";
 import { lerp } from "../util/math";
 
+// export type Bullet = {
+//     origin: 
+// }
+
 export class GunInstance {
     agent: Agent;
     info: GameGun;

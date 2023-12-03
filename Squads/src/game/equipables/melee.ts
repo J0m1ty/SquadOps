@@ -27,7 +27,7 @@ export class MeleeInstance {
 
         this.agent.actions.push(new ActionInstance(this.agent, action, this.agent.game.app.ticker.lastTime));
 
-        return action.data.cooldown;
+        return action.cooldown;
     }
 
     getSprite = (game: Game) => {
