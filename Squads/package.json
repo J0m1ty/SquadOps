@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.16",
-    "@types/css-font-loading-module": "^0.0.10",
+    "@types/css-font-loading-module": "^0.0.12",
     "@types/express": "^4.17.21",
     "@types/matter-js": "^0.19.3",
     "@types/node": "^20.8.10",
