@@ -2,7 +2,7 @@ import { Bodies } from "matter-js";
 import { GameObject } from "./gameObject";
 import { Game } from "../main/game";
 import { Container, Graphics } from "pixi.js";
-import { angleBetween, angleTo, equalsXY, lerp, lerpXY } from "../util/math";
+import { angleBetween, angleTo, equalsXY, lerp, lerpXY, mod } from "../util/math";
 import { Hand } from "./hand";
 import { ActionInstance } from "../equipables/action";
 import { GunInstance } from "../equipables/gun";
@@ -12,7 +12,7 @@ import { GameGun, GameMelee, Gun, isGun, isMelee } from "../equipables/definitio
 export class Agent extends GameObject {
     protected _rotation: number = 0;
     rotation: number = 0;
-    rotationSpeed: number = 10;
+    rotationSpeed: number = 10 * (Math.PI / 180);
 
     center: Graphics = new Graphics();
     handBox: Container = new Container();
@@ -110,18 +110,9 @@ export class Agent extends GameObject {
     }
 
     update(delta: number) {
-        for (let i = 0; i < this.rotationSpeed; i++) {
-            const diff = angleBetween(this._rotation, this.rotation);
+        this._rotation = mod(this._rotation + Math.min(angleBetween(this._rotation, this.rotation), this.rotationSpeed * delta) * angleTo(this._rotation, this.rotation), 2 * Math.PI);
 
-            if (Math.abs(diff) < 0.01) {
-                this._rotation = this.rotation;
-                break;
-            }
-
-            const modify = angleTo(this._rotation, this.rotation) * (Math.PI / 180) * delta;
-            
-            this._rotation = (modify + this._rotation) % (2 * Math.PI);
-        }
+        if (Math.abs(angleBetween(this._rotation, this.rotation)) < 0.01) this._rotation = this.rotation;
 
         this.container.rotation = this._rotation;
 
@@ -155,6 +146,7 @@ export class Agent extends GameObject {
             this.handBox.rotation = 0;
         }
 
+        // Make sure the agent's hands are settled before allowing actions
         if (equalsXY(this.hand.left.container.position, this.equipped?.info.idle.left?.position ?? { x: 0, y: 0 }, 0.1) && equalsXY(this.hand.right.container.position, this.equipped?.info.idle.right?.position ?? { x: 0, y: 0 }, 0.1) && equalsXY(this.handBox.position, { x: 0, y: 0 }, 0.1)) {
             this.settled = true;
         }
