@@ -1,7 +1,7 @@
 import { Game } from "../main/game";
 import { Container } from "@pixi/display";
 import { Body, Composite } from "matter-js";
-import { Layer } from "../main/game";
+import { GraphicsLayer } from "../main/game";
 import { DynamicComponent } from "./component";
 import { Point } from "pixi.js";
 
@@ -23,7 +23,7 @@ export class GameObject implements DynamicComponent {
         return this.body.position;
     }
 
-    constructor(game: Game, body: Body, options: { layer: Layer, cull?: "auto" | number }) {
+    constructor(game: Game, body: Body, options: { layer: GraphicsLayer, cull?: "auto" | number }) {
         this.game = game;
         
         this.body = body;

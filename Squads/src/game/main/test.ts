@@ -23,14 +23,18 @@ export class Test implements DynamicComponent {
                 friction: 0,
                 frictionAir: 0,
                 frictionStatic: 0,
-                isStatic: true
+                isStatic: true,
+                collisionFilter: {
+                    category: this.game.categories.wall,
+                    mask: this.game.categories.agent | this.game.categories.bullet | this.game.categories.item
+                }
             });
             
             const color = new Color(Math.random() * 0xffffff);
 
             const obj = new GameObject(this.game, body, {
                 layer: "surface",
-                cull: r * 2
+                cull: r * 2,
             });
 
             this.game.gui.worldmap.register(x, y, new Graphics().beginFill(color).drawCircle(0, 0, r).endFill());

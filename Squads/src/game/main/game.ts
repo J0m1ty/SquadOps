@@ -11,7 +11,8 @@ import { UIManager } from '../gui/uiManager';
 import { Test } from './test';
 import { AssetLoader, Loader } from './loader';
 
-export type Layer = 'background' | 'surface' | 'player' | 'ui' | 'debug';
+export type GraphicsLayer = 'background' | 'surface' | 'player' | 'ui' | 'debug';
+export type CollisionLayer = 'agent' | 'bullet' | 'wall' | 'item';
 
 export class Game {
     app: Application;
@@ -31,12 +32,19 @@ export class Game {
     test!: Test;
     
     // Layers
-    layers: Record<Layer, Container> = {
+    layers: Record<GraphicsLayer, Container> = {
         background: new Container(),
         surface: new Container(),
         player: new Container(),
         ui: new Container(),
         debug: new Container()
+    };
+
+    categories: Record<CollisionLayer, number> = {
+        agent: 0x0001,
+        bullet: 0x0002,
+        wall: 0x0004,
+        item: 0x0008
     };
 
     // Game state

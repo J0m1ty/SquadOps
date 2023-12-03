@@ -39,7 +39,11 @@ export class Agent extends GameObject {
         super(game, Bodies.circle(0, 0, 50, {
             friction: 0,
             frictionAir: 0,
-            frictionStatic: 0
+            frictionStatic: 0,
+            collisionFilter: {
+                category: game.categories.agent,
+                mask: game.categories.wall | game.categories.bullet
+            }
         }), {
             layer: "player"
         });
