@@ -1,6 +1,6 @@
 # About
 
-![Screenshot 2023-11-15 110539](https://github.com/J0m1ty/KhanAcademy/assets/60862595/b5adbd7a-901f-44fa-9271-87e2967aacc2)
+![image](https://github.com/J0m1ty/SquadOps/assets/60862595/8971ea94-eac2-445b-b896-b410d7a5cb28)
 A singleplayer mil-sim game, where you control a squad of NPCs to secure objectives. Has some similar visuals and gameplay mechanics to the late Surviv.io. Written with Pixi.js (graphics) and Matter.js (physics). Utilizes a custom, moduluar game engine that's currently in development.
 
 # Development
