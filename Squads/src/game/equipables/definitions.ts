@@ -5,7 +5,7 @@ import { lerp } from "../util/math";
 // TYPES
 
 export type GunType = "pistollike" | "riflelike";
-export type GunKey<T extends GunType> = T extends "pistollike" ? "m9" : T extends "riflelike" ? "ak47" : never;
+export type GunKey<T extends GunType> = T extends "pistollike" ? "m9" : T extends "riflelike" ? "ak47" | "famas" : never;
 
 export type ActionType = "single" | "dual";
 export type ActionKey<T extends ActionType> = T extends "single" ? "punch_left" | "punch_right" | "slash" | "thrust" | "cut" : T extends "dual" ?  "heavy_swing" : never;
@@ -74,6 +74,7 @@ export type Equippable<T extends GunType | MeleeType> = {
     name: T extends GunType ? GunKey<T> : T extends MeleeType ? MeleeKey<T> : never;
     type: T;
     idle: HandPositions;
+    carryingSpeedMult: number;
 }
 
 export type Gun<T extends GunType> = Equippable<T> & {
@@ -81,6 +82,10 @@ export type Gun<T extends GunType> = Equippable<T> & {
     asset: AssetData;
     tint: number;
     recoil: { x: number, y: number };
+    range: number,
+    bulletVelocity: number,
+    muzzleOffset: number,
+    shootingSpeedMult: number,
     fireMode: { type: "auto", cooldown: number } 
             | { type: "semi", cooldown: number } 
             | { type: "burst", mode: "auto" | "semi", cooldown: number, burstCooldown: number, shots: number };
@@ -185,6 +190,11 @@ export const cloneGun = (source: GameGun): GameGun => {
         },
         tint: source.tint,
         recoil: { ...source.recoil },
+        range: source.range,
+        bulletVelocity: source.bulletVelocity,
+        muzzleOffset: source.muzzleOffset,
+        carryingSpeedMult: source.carryingSpeedMult,
+        shootingSpeedMult: source.shootingSpeedMult,
         fireMode: { ...source.fireMode },
         ...("dualable" in source ? { dualable: source.dualable } : {})
     };
@@ -207,6 +217,7 @@ export const cloneMelee = (source: GameMelee): GameMelee => {
             }
         },
         actions: new Set(source.actions),
+        carryingSpeedMult: source.carryingSpeedMult,
         ...("asset" in source ? { asset: source.asset } : {}),
         ...("side" in source ? { side: source.side } : {})
     };
@@ -215,6 +226,17 @@ export const cloneMelee = (source: GameMelee): GameMelee => {
 }
 
 // DATA
+
+export const defaultHandPositions: HandPositions = {
+    left: {
+        vertical: "above",
+        position: { x: 33, y: -33 }
+    },
+    right: {
+        vertical: "above",
+        position: { x: 33, y: 33 }
+    }
+}
 
 export const guns: {
     [type in GunType]: {
@@ -241,6 +263,11 @@ export const guns: {
             },
             tint: 0x222222,
             recoil: { x: 10, y: 1 },
+            range: 2000,
+            bulletVelocity: 40,
+            muzzleOffset: 45,
+            carryingSpeedMult: 0.9,
+            shootingSpeedMult: 0.8,
             fireMode: { type: "semi", cooldown: 150 },
             dualable: true
         },
@@ -265,7 +292,38 @@ export const guns: {
             },
             tint: 0x865232,
             recoil: { x: 15, y: 2 },
-            fireMode: { type: "auto", cooldown: 160 }
+            range: 3000,
+            bulletVelocity: 50,
+            muzzleOffset: 115,
+            carryingSpeedMult: 0.8,
+            shootingSpeedMult: 0.5,
+            fireMode: { type: "auto", cooldown: 120 }
+        },
+        famas: { name: "famas", type: "riflelike", classification: "rifle",
+            asset: {
+                name: "gun_long",
+                offset: { x: 45, y: 0 },
+                rotation: - Math.PI / 2,
+                anchor: { x: 0.5, y: 0 }
+            },
+            idle: {
+                left: {
+                    vertical: "below",
+                    position: { x: 115, y: -3 }
+                },
+                right: {
+                    vertical: "above",
+                    position: { x: 45, y: 0 }
+                }
+            },
+            tint: 0x222222,
+            recoil: { x: 20, y: 1 },
+            range: 3500,
+            bulletVelocity: 55,
+            muzzleOffset: 115,
+            carryingSpeedMult: 0.8,
+            shootingSpeedMult: 0.5,
+            fireMode: { type: "burst", mode: "auto", cooldown: 520, burstCooldown: 100, shots: 3 }
         }
     }
 }
@@ -386,17 +444,9 @@ export const melees: {
 } = {
     none: {
         fists: { name: "fists", type: "none",
-            idle: {
-                left: {
-                    vertical: "above",
-                    position: { x: 33, y: -33 }
-                },
-                right: {
-                    vertical: "above",
-                    position: { x: 33, y: 33 }
-                }
-            },
-            actions: new Set(["punch_left", "punch_right"])
+            idle: defaultHandPositions,
+            actions: new Set(["punch_left", "punch_right"]),
+            carryingSpeedMult: 1
         }
     },
     singlehanded: {
@@ -407,17 +457,9 @@ export const melees: {
                 rotation: 0,
                 anchor: { x: 0.5, y: 0.5 }
             },
-            idle: {
-                left: {
-                    vertical: "above",
-                    position: { x: 33, y: -33 }
-                },
-                right: {
-                    vertical: "below",
-                    position: { x: 33, y: 33 }
-                }
-            },
-            actions: new Set(["punch_left", "punch_right", "slash"])
+            idle: defaultHandPositions,
+            actions: new Set(["punch_left", "punch_right", "slash"]),
+            carryingSpeedMult: 1
         },
         bayonet: { name: "bayonet", type: "singlehanded", side: "right",
             asset: {
@@ -426,17 +468,9 @@ export const melees: {
                 rotation: - Math.PI / 6,
                 anchor: { x: 0.5, y: 0.5 }
             },
-            idle: {
-                left: {
-                    vertical: "above",
-                    position: { x: 33, y: -33 }
-                },
-                right: {
-                    vertical: "below",
-                    position: { x: 33, y: 33 }
-                }
-            },
-            actions: new Set(["cut", "thrust"])
+            idle: defaultHandPositions,
+            actions: new Set(["cut", "thrust"]),
+            carryingSpeedMult: 1
         }
     },
     twohanded: {
@@ -457,7 +491,8 @@ export const melees: {
                     position: { x: 45, y: 33 }
                 }
             },
-            actions: new Set(["heavy_swing"])
+            actions: new Set(["heavy_swing"]),
+            carryingSpeedMult: 0.75
         }
     }
 }
