@@ -72,14 +72,14 @@ export class InputManager implements DynamicComponent {
         const center = { x: this.game.width / 2, y: this.game.height / 2};
         const diff = { x: this.mousePos.x - center.x, y: this.mousePos.y - center.y };
         const rotation = Math.atan2(diff.y, diff.x);
-        this.game.playerManager.agent.targetRotation = rotation;
+        this.game.playerManager.agent.rotation = rotation;
 
         const raw = { x: 0, y: 0 };
         if (this.keyboard.key('ArrowUp').isDown || this.keyboard.key('w').isDown) raw.y -= 1;
         if (this.keyboard.key('ArrowDown').isDown || this.keyboard.key('s').isDown) raw.y += 1;
         if (this.keyboard.key('ArrowLeft').isDown || this.keyboard.key('a').isDown) raw.x -= 1;
         if (this.keyboard.key('ArrowRight').isDown || this.keyboard.key('d').isDown) raw.x += 1;
-        const move = Vector.mult(Vector.normalise(raw), this.game.playerManager.agent.speed);
+        const move = Vector.mult(Vector.normalise(raw), 3);
 
         Body.setVelocity(this.game.playerManager.agent.body, move);
     }

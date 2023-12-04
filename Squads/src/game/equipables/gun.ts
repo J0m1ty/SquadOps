@@ -3,9 +3,10 @@ import { GameGun, cloneGun } from "./definitions";
 import { Game } from "../main/game";
 import { Agent } from "../basic/agent";
 import { lerp } from "../util/math";
-import { Bullet } from "./bullet";
-import { Vector } from "../util/vector";
-import { raycast } from "../util/raycast";
+
+// export type Bullet = {
+//     origin: 
+// }
 
 export class GunInstance {
     agent: Agent;
@@ -70,20 +71,9 @@ export class GunInstance {
 
             this.agent.handBox.position.set(x, y);
         }
-
-        const angle = this.agent.actualRotation;
-        const offset = this.agent.size + this.info.muzzleOffset;
-        const origin = { x: this.agent.position.x + Math.cos(angle) * offset, y: this.agent.position.y + Math.sin(angle) * offset };
-        const end = { x: origin.x + Math.cos(angle) * this.info.range, y: origin.y + Math.sin(angle) * this.info.range };
-
-        const collisions = raycast(this.agent.game.engine.world.bodies, origin, end);
-
-        const range = collisions.length > 0 ? Vector.distance(origin, collisions[0].point) : this.info.range;
-
-        this.agent.bullets.push(new Bullet(this.agent.game, origin, angle, range, this.info.bulletVelocity));
     }
 
-    update(delta: number) {
+    update() {
         switch (this.info.fireMode.type) {
             case "semi": case "auto":
                 if ((this.info.fireMode.type == "auto" ? this.agent.game.input.down : this.agent.game.input.click) && this.cooldown <= 0) {
@@ -109,7 +99,7 @@ export class GunInstance {
         this.burst.cooldown = Math.max(0, this.burst.cooldown - this.agent.game.app.ticker.elapsedMS);
     }
 
-    reset() {
+    reset = () => {
         this._sprite?.removeFromParent();
         this._dual?.removeFromParent();
     }

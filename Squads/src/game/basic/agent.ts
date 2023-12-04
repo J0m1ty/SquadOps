@@ -8,12 +8,10 @@ import { ActionInstance } from "../equipables/action";
 import { GunInstance } from "../equipables/gun";
 import { MeleeInstance } from "../equipables/melee";
 import { GameGun, GameMelee, Gun, isGun, isMelee } from "../equipables/definitions";
-import { raycast } from "../util/raycast";
-import { Bullet } from "../equipables/bullet";
 
 export class Agent extends GameObject {
-    actualRotation: number = 0;
-    targetRotation: number = 0;
+    protected _rotation: number = 0;
+    rotation: number = 0;
     rotationSpeed: number = 10 * (Math.PI / 180);
 
     center: Graphics = new Graphics();
@@ -32,10 +30,6 @@ export class Agent extends GameObject {
     settled: boolean = false;
 
     actions: ActionInstance[] = [];
-    bullets: Bullet[] = [];
-
-    defaultSpeed: number = 5;
-    speed: number = 5;
 
     get size() {
         return this.body.circleRadius ?? 0;
@@ -102,7 +96,7 @@ export class Agent extends GameObject {
             if (sprite) {
                 if (this.equipped.info.type == "singlehanded" && "side" in this.equipped.info) {
                     const side = this.equipped.info.side;
-                    this.hand[side].holding[this.equipped.info.idle[side].vertical].addChild(sprite);
+                    this.hand[side].holding[this.equipped.info.idle[side]?.vertical ?? "above"].addChild(sprite);
                 }
                 else {
                     this.holding.addChild(sprite);
@@ -111,31 +105,20 @@ export class Agent extends GameObject {
         }
 
         this.hand.left.container.removeFromParent();
-        this.level[this.equipped.info.idle.left.vertical].addChild(this.hand.left.container);
+        this.level[this.equipped.info.idle.left?.vertical ?? "above"].addChild(this.hand.left.container);
+        this.hand.left.container.visible = this.equipped.info.idle.left != null;
 
         this.hand.right.container.removeFromParent();
-        this.level[this.equipped.info.idle.right.vertical].addChild(this.hand.right.container);
+        this.level[this.equipped.info.idle.right?.vertical ?? "above"].addChild(this.hand.right.container);
+        this.hand.right.container.visible = this.equipped.info.idle.right != null;
     }
 
     update(delta: number) {
-        this.actualRotation = mod(this.actualRotation + Math.min(angleBetween(this.actualRotation, this.targetRotation), this.rotationSpeed * delta) * angleTo(this.actualRotation, this.targetRotation), 2 * Math.PI);
+        this._rotation = mod(this._rotation + Math.min(angleBetween(this._rotation, this.rotation), this.rotationSpeed * delta) * angleTo(this._rotation, this.rotation), 2 * Math.PI);
 
-        if (Math.abs(angleBetween(this.actualRotation, this.targetRotation)) < 0.01) this.actualRotation = this.targetRotation;
+        if (Math.abs(angleBetween(this._rotation, this.rotation)) < 0.01) this._rotation = this.rotation;
 
-        this.container.rotation = this.actualRotation;
-        
-        if (this.equipped) {
-            this.equipped.update(delta);
-
-            this.speed = this.defaultSpeed * this.equipped.info.carryingSpeedMult;
-
-            if (this.equipped instanceof GunInstance && (((this.equipped.info.fireMode.type == "auto" || (this.equipped.info.fireMode.type == "burst" && this.equipped.info.fireMode.mode == "auto")) && this.game.input.down))) {
-                this.speed = this.defaultSpeed * this.equipped.info.shootingSpeedMult;
-            }
-        }
-        else {
-            this.speed = this.defaultSpeed;
-        }
+        this.container.rotation = this._rotation;
 
         const update = this.actions.reduce((acc, action) => {
             const update = action.animate(this.game.app.ticker.lastTime);
@@ -171,18 +154,6 @@ export class Agent extends GameObject {
         if (equalsXY(this.hand.left.container.position, this.equipped?.info.idle.left?.position ?? { x: 0, y: 0 }, 0.1) && equalsXY(this.hand.right.container.position, this.equipped?.info.idle.right?.position ?? { x: 0, y: 0 }, 0.1) && equalsXY(this.handBox.position, { x: 0, y: 0 }, 0.1)) {
             this.settled = true;
         }
-
-        this.bullets.forEach((bullet) => {
-            bullet.update(delta);
-
-            if (bullet.destroy) {
-                bullet.container.destroy({
-                    children: true
-                });
-
-                this.bullets.splice(this.bullets.indexOf(bullet), 1);
-            }
-        });
 
         super.update(delta);
     }

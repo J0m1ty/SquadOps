@@ -11,7 +11,7 @@ import { UIManager } from '../gui/uiManager';
 import { Test } from './test';
 import { AssetLoader, Loader } from './loader';
 
-export type GraphicsLayer = 'background' | 'surface' | 'bullets' | 'player' | 'ui' | 'debug';
+export type GraphicsLayer = 'background' | 'surface' | 'player' | 'ui' | 'debug';
 export type CollisionLayer = 'agent' | 'bullet' | 'wall' | 'item';
 
 export class Game {
@@ -35,7 +35,6 @@ export class Game {
     layers: Record<GraphicsLayer, Container> = {
         background: new Container(),
         surface: new Container(),
-        bullets: new Container(),
         player: new Container(),
         ui: new Container(),
         debug: new Container()
@@ -82,7 +81,6 @@ export class Game {
     private initialize() {
         this.app.stage.addChild(this.layers.background);
         this.app.stage.addChild(this.layers.surface);
-        this.app.stage.addChild(this.layers.bullets);
         this.app.stage.addChild(this.layers.player);
         this.app.stage.addChild(this.layers.ui);
         this.app.stage.addChild(this.layers.debug);
@@ -121,7 +119,7 @@ export class Game {
 
         this.debug.set("FPS", `${Math.round(this.app.ticker.FPS)}`);
         this.debug.set("POS", `${Math.round(this.playerManager.agent.position.x)}, ${Math.round(this.playerManager.agent.position.y)}`);
-        this.debug.set("ROT", `${Math.round(this.playerManager.agent.targetRotation * 180 / Math.PI)}`);
+        this.debug.set("ROT", `${Math.round(this.playerManager.agent.rotation * 180 / Math.PI)}`);
 
         this.debug.update(delta);
         this.input.update(delta);
