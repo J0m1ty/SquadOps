@@ -1,6 +1,8 @@
 node_modules
 package-lock.json
+.vscode
 /public/main.bundle.js
 /public/matter.bundle.js
 /public/pixi.bundle.js
 /public/vendor.bundle.js
+/dist
