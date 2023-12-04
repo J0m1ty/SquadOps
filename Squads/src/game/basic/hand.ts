@@ -19,8 +19,8 @@ export class Hand {
         this.hand.drawCircle(0, 0, this.agent.size * 6/19);
         this.hand.endFill();
         
-        this.container.addChild(this.holding.below);
-        this.container.addChild(this.hand);
         this.container.addChild(this.holding.above);
+        this.container.addChild(this.hand);
+        this.container.addChild(this.holding.below);
     }
 }

@@ -2,8 +2,6 @@ import { DynamicComponent } from "../basic/component";
 import { Agent } from "../basic/agent";
 import { Game } from "./game";
 import { guns, melees } from "../equipables/definitions";
-import { MeleeInstance } from "../equipables/melee";
-import { GunInstance } from "../equipables/gun";
 
 export class PlayerManager implements DynamicComponent {
     game: Game;
@@ -33,6 +31,9 @@ export class PlayerManager implements DynamicComponent {
             else if (this.agent.equipped?.info.name == "m9") {
                 this.agent.equip(guns.riflelike.ak47);
             }
+            else if (this.agent.equipped?.info.name == "ak47") {
+                this.agent.equip(guns.riflelike.famas);
+            }
             else {
                 this.agent.equip(melees.none.fists);
             }
@@ -40,8 +41,6 @@ export class PlayerManager implements DynamicComponent {
     }
 
     update(delta: number) {
-        this.agent.equipped?.update();
-
         this.agent.update(delta);
     }
 }
