@@ -3,6 +3,7 @@ import { Container } from "@pixi/display";
 import { Body, Composite } from "matter-js";
 import { GraphicsLayer } from "../main/game";
 import { DynamicComponent } from "./component";
+import { Point } from "pixi.js";
 
 export class GameObject implements DynamicComponent {
     game: Game;
@@ -40,7 +41,7 @@ export class GameObject implements DynamicComponent {
     }
 
     update(delta: number) {
-        const pos = this.game.camera.in({ x: this.position.x, y: this.position.y });
+        const pos = this.game.camera.in(new Point( this.position.x, this.position.y ));
 
         if (this.info.cull) {
             this.container.visible = this.container.renderable = this.game.camera.cull(pos, this.info.cull);
