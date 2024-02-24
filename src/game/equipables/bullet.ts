@@ -1,51 +1,66 @@
 import { Container, Graphics } from "pixi.js";
-import { Game } from "../main/game";
 import { Vector } from "../util/vector";
+import { lerpXY } from "../util/math";
+import { Agent } from "../basic/agent";
 
 export class Bullet {
-    game: Game;
+    agent: Agent;
 
     container: Container = new Container();
 
-    origin: { x: number, y: number };
-
-    pos: { x: number, y: number };
-    direction: number;
-    range: number;
-    speed: number;
+    start: { x: number, y: number };
+    target: { x: number, y: number };
+    
+    private _progress: number = 0;
+    velocity: number;
 
     length: number = 25;
 
-    constructor(game: Game, origin: { x: number, y: number }, direction: number, range: number, speed: number) {
-        this.game = game;
-        
-        this.origin = origin;
+    constructor(agent: Agent, start: { x: number, y: number }, target: { x: number, y: number }, velocity: number) {
+        this.agent = agent;
 
-        this.pos = origin;
-        this.direction = direction;
-        this.range = range;
-        this.speed = speed;
+        this.start = start;
+        this.target = target;
+        this.velocity = velocity;
 
         const bullet = new Graphics();
-        bullet.lineStyle(5, 0x000000);
-        bullet.moveTo(-this.length / 2, 0);
-        bullet.lineTo(this.length / 2, 0);
-        bullet.rotation = direction;
+        //trail
+        bullet.beginFill(0x000000, 0.2);
+        bullet.drawRoundedRect(-this.length * 3, -5, this.length * 3, 5, 3);
+        bullet.endFill();
+
+        //bullet
+        bullet.beginFill(0x000000, 0.8);
+        bullet.drawRoundedRect(-this.length / 2, -5, this.length, 5, 3);
+        bullet.endFill();
+        bullet.rotation = Math.atan2(target.y - start.y, target.x - start.x);
         this.container.addChild(bullet);
-        this.game.layers.bullets.addChild(this.container);
+        this.agent.game.layers.bullets.addChild(this.container);
+    }
+
+    get pos() {
+        return lerpXY(this.start, this.target, this._progress);
     }
 
     get destroy() {
-        return Vector.distance(this.origin, this.pos) > this.range;
+        return this._progress >= 1;
     }
 
     update(delta: number) {
-        this.pos = Vector.add(this.pos, Vector.mult({ x: Math.cos(this.direction), y: Math.sin(this.direction) }, this.speed * delta));
-        
-        const pos = this.game.camera.in(this.pos);
+        const distance = Vector.distance(this.start, this.target);
 
-        this.container.position.set(pos.x, pos.y);
+        this._progress += (this.velocity * delta) / distance;
 
-        this.container.scale.set(this.game.camera.scale);
+        const { x, y } = this.agent.game.camera.in(this.pos);
+        this.container.position.set(x, y);
+        this.container.scale.set(this.agent.game.camera.scale);
+
+        if (this.destroy) {
+            this.container.destroy({
+                children: true
+            });
+
+            this.agent.bullets.splice(this.agent.bullets.indexOf(this), 1);
+        }
     }
 }

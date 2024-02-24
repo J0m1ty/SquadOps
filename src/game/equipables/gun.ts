@@ -73,14 +73,14 @@ export class GunInstance {
 
         const angle = this.agent.actualRotation;
         const offset = this.agent.size + this.info.muzzleOffset;
-        const origin = { x: this.agent.position.x + Math.cos(angle) * offset, y: this.agent.position.y + Math.sin(angle) * offset };
-        const end = { x: origin.x + Math.cos(angle) * this.info.range, y: origin.y + Math.sin(angle) * this.info.range };
+        const start = { x: this.agent.position.x + Math.cos(angle) * offset, y: this.agent.position.y + Math.sin(angle) * offset };
+        const end = { x: start.x + Math.cos(angle) * this.info.range, y: start.y + Math.sin(angle) * this.info.range };
 
-        const collisions = raycast(this.agent.game.engine.world.bodies, origin, end);
+        const collisions = raycast(this.agent.game.engine.world.bodies, start, end);
 
-        const range = collisions.length > 0 ? Vector.distance(origin, collisions[0].point) : this.info.range;
+        const target = collisions.length > 0 ? collisions[0].point : end;
 
-        this.agent.bullets.push(new Bullet(this.agent.game, origin, angle, range, this.info.bulletVelocity));
+        this.agent.bullets.push(new Bullet(this.agent, start, target, this.info.bulletVelocity));
     }
 
     update(delta: number) {

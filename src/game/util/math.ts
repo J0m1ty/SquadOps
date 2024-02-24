@@ -6,10 +6,19 @@ export const clamp = (value: number, min: number, max: number) => Math.min(Math.
 
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
+export const inverseLerp = (a: number, b: number, v: number) => (v - a) / (b - a);
+
 export const lerpXY = (a: { x: number, y: number }, b: { x: number, y: number }, t: number) => {
     return {
         x: lerp(a.x, b.x, t),
         y: lerp(a.y, b.y, t)
+    };
+}
+
+export const inverseLerpXY = (a: { x: number, y: number }, b: { x: number, y: number }, v: { x: number, y: number }) => {
+    return {
+        x: inverseLerp(a.x, b.x, v.x),
+        y: inverseLerp(a.y, b.y, v.y)
     };
 }
 

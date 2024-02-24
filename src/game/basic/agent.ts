@@ -166,23 +166,12 @@ export class Agent extends GameObject {
             this.handBox.position.y = lerp(this.handBox.position.y, 0, 1 - Math.pow(0.5, delta / 1.5));
             this.handBox.rotation = 0;
         }
-
-        // Make sure the agent's hands are settled before allowing actions
+        
         if (equalsXY(this.hand.left.container.position, this.equipped?.info.idle.left?.position ?? { x: 0, y: 0 }, 0.1) && equalsXY(this.hand.right.container.position, this.equipped?.info.idle.right?.position ?? { x: 0, y: 0 }, 0.1) && equalsXY(this.handBox.position, { x: 0, y: 0 }, 0.1)) {
             this.settled = true;
         }
 
-        this.bullets.forEach((bullet) => {
-            bullet.update(delta);
-
-            if (bullet.destroy) {
-                bullet.container.destroy({
-                    children: true
-                });
-
-                this.bullets.splice(this.bullets.indexOf(bullet), 1);
-            }
-        });
+        this.bullets.forEach((bullet) => bullet.update(delta));
 
         super.update(delta);
     }
